@@ -5,7 +5,13 @@ from libgravatar import Gravatar
 
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
-
+    ROLE_CHOICES = (
+        ('student', 'Student'),
+        ('tutor', 'Tutor'),
+        ('admin', 'Admin'),
+    )
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    
     username = models.CharField(
         max_length=30,
         unique=True,

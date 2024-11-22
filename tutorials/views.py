@@ -26,6 +26,18 @@ def home(request):
 
     return render(request, 'home.html')
 
+@login_required
+def student_dashboard(request):
+    return render(request, 'student_dashboard.html')
+
+@login_required
+def tutor_dashboard(request):
+    return render(request, 'tutor_dashboard.html')
+
+@login_required
+def admin_dashboard(request):
+    return render(request, 'admin_dashboard.html')
+
 
 class LoginProhibitedMixin:
     """Mixin that redirects when a user is logged in."""
@@ -74,7 +86,12 @@ class LogInView(LoginProhibitedMixin, View):
         user = form.get_user()
         if user is not None:
             login(request, user)
-            return redirect(self.next)
+            if user.role == 'student':
+                return redirect('student_dashboard')
+            elif user.role == 'tutor':
+                return redirect('tutor_dashboard')
+            elif user.role == 'admin':
+                return redirect('admin_dashboard')
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
         return self.render()
 
