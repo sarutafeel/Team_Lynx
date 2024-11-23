@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-top: 0;
+        }
+        .priority-high {
+            color: red;
+        }
+        .priority-medium {
+            color: orange;
+        }
+        .priority-low {
+            color: green;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <div class="container">
+        <div class="section">
+            <h2>Student Requests</h2>
+            <p>Here are the current student requests with their priorities:</p>
+            <table>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Request Type</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                </tr>
+                <!-- Example rows -->
+                <tr>
+                    <td>John Doe</td>
+                    <td>New Lesson Request</td>
+                    <td class="priority-high">High</td>
+                    <td>Unallocated</td>
+                </tr>
+            </table>
+        </div>
+        <div class="section">
+            <h2>Lesson Schedules</h2>
+            <p>View and manage current schedules.</p>
+            <!-- Placeholder for schedules -->
+        </div>
+        <div class="section">
+            <h2>Analytics</h2>
+            <p>Performance metrics for tutors:</p>
+            <ul>
+                <li>Tutor A: 10 hours taught, 5 students</li>
+                <li>Tutor B: 15 hours taught, 7 students</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
