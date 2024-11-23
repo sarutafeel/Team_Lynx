@@ -35,8 +35,28 @@ def tutor_dashboard(request):
     return render(request, 'tutor_dashboard.html')
 
 @login_required
+@login_required
 def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
+    """Display the admin dashboard with relevant data."""
+    
+    if not request.user.is_staff:  # Ensure only admins access this page
+        return redirect('dashboard')  # Redirect non-admins to their dashboard
+    
+    # Example: Fetching data to display on the dashboard
+    requests = Request.objects.all()  # Replace with your model for requests
+    tutors = Tutor.objects.all()      # Replace with your model for tutors
+    analytics = {
+        "total_tutors": tutors.count(),
+        "total_students": Student.objects.count(),  # Replace with your model for students
+        "hours_taught": sum(tutor.hours_taught for tutor in tutors)  # Example calculation
+    }
+
+    context = {
+        "requests": requests,
+        "analytics": analytics,
+    }
+    return render(request, 'admin_dashboard.html', context)
+
 
 
 class LoginProhibitedMixin:
