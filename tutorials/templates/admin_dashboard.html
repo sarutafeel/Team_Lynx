@@ -55,10 +55,9 @@
     <header>
         <h1>Admin Dashboard</h1>
     </header>
-    <div class="container">
-        <div class="section">
-            <h2>Student Requests</h2>
-            <p>Here are the current student requests with their priorities:</p>
+    <main>
+        <section>
+            <h2>Requests</h2>
             <table>
                 <tr>
                     <th>Student Name</th>
@@ -66,28 +65,28 @@
                     <th>Priority</th>
                     <th>Status</th>
                 </tr>
-                <!-- Example rows -->
+                {% for request in requests %}
                 <tr>
-                    <td>John Doe</td>
-                    <td>New Lesson Request</td>
-                    <td class="priority-high">High</td>
-                    <td>Unallocated</td>
+                    <td>{{ request.student.name }}</td>
+                    <td>{{ request.type }}</td>
+                    <td>{{ request.priority }}</td>
+                    <td>{{ request.status }}</td>
                 </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No requests available.</td>
+                </tr>
+                {% endfor %}
             </table>
-        </div>
-        <div class="section">
-            <h2>Lesson Schedules</h2>
-            <p>View and manage current schedules.</p>
-            <!-- Placeholder for schedules -->
-        </div>
-        <div class="section">
+        </section>
+        <section>
             <h2>Analytics</h2>
-            <p>Performance metrics for tutors:</p>
             <ul>
-                <li>Tutor A: 10 hours taught, 5 students</li>
-                <li>Tutor B: 15 hours taught, 7 students</li>
+                <li>Total Tutors: {{ analytics.total_tutors }}</li>
+                <li>Total Students: {{ analytics.total_students }}</li>
+                <li>Total Hours Taught: {{ analytics.hours_taught }}</li>
             </ul>
-        </div>
-    </div>
+        </section>
+    </main>
 </body>
 </html>
