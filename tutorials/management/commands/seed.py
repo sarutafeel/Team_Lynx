@@ -12,6 +12,12 @@ user_fixtures = [
     {'username': '@charlie', 'email': 'charlie.johnson@example.org', 'first_name': 'Charlie', 'last_name': 'Johnson'},
 ]
 
+user_roles = {
+    '@johndoe': {'is_staff': True, 'is_superuser': True},  # Admin user
+    '@janedoe': {'is_staff': False, 'is_superuser': False},  # Tutor user
+    '@charlie': {'is_staff': False, 'is_superuser': False},  # Student user
+}
+
 
 class Command(BaseCommand):
     """Build automation command to seed the database."""
@@ -33,8 +39,13 @@ class Command(BaseCommand):
         self.generate_random_users()
 
     def generate_user_fixtures(self):
-        for data in user_fixtures:
-            self.try_create_user(data)
+    for data in user_fixtures:
+        user = self.try_create_user(data)
+        if user and data['username'] in user_roles:
+            roles = user_roles[data['username']]
+            user.is_staff = roles.get('is_staff', False)
+            user.is_superuser = roles.get('is_superuser', False)
+            user.save()
 
     def generate_random_users(self):
         user_count = User.objects.count()
