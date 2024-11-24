@@ -35,7 +35,6 @@ def tutor_dashboard(request):
     return render(request, 'tutor_dashboard.html')
 
 @login_required
-@login_required
 def admin_dashboard(request):
     """Display the admin dashboard with relevant data."""
     
