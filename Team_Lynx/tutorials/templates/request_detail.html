@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Request Details</h2>
+<p><strong>Student:</strong> {{ request_obj.student.full_name }}</p>
+<p><strong>Subject:</strong> {{ request_obj.subject }}</p>
+<p><strong>Preferred Date:</strong> {{ request_obj.preferred_date }}</p>
+<p><strong>Preferred Time:</strong> {{ request_obj.preferred_time }}</p>
+<p><strong>Message:</strong> {{ request_obj.message }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+</form>
+
+<a href="{% url 'tutor_dashboard' %}">Back to Dashboard</a>
+{% endblock %}

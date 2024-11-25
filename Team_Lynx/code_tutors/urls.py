@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import path
 from tutorials import views
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
@@ -29,5 +30,7 @@ urlpatterns = [
     path('password/', views.PasswordView.as_view(), name='password'),
     path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
+    path('tutor_dashboard/', views.tutor_dashboard, name='tutor_dashboard'),
+    path('request/<int:pk>/', views.request_detail, name='request_detail'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

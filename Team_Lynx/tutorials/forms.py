@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
 from .models import User
+from .models import Request
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -108,3 +109,19 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
         return user
+    
+
+
+class RequestResponseForm(forms.ModelForm):
+    """Form for tutors to accept or reject lesson requests."""
+    class Meta:
+        model = Request
+        fields = ['status']
+
+    def __init__(self, *args, **kwargs):
+        """Initialize form and set choices for status field."""
+        super().__init__(*args, **kwargs)
+        self.fields['status'].choices = [
+            ('Accepted', 'Accept'),
+            ('Rejected', 'Reject'),
+        ]

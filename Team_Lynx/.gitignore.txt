@@ -1,0 +1,20 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore Node.js project files
+node_modules/
+npm-debug.log
+
+# Ignore Python project files
+__pycache__/
+*.py[cod]
+
+# Ignore IDE and editor configuration files
+.idea/
+.vscode/
+*.swp
+
+# Ignore operating system cache
+AppData/
+

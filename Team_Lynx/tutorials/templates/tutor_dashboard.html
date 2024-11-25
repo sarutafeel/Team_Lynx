@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>My Lessons</h2>
+<ul>
+    {% for lesson in lessons %}
+    <li>
+        {{ lesson.date }} {{ lesson.start_time }} - {{ lesson.subject }} with {{ lesson.student.full_name }}
+        at {{ lesson.location }}
+    </li>
+    {% empty %}
+    <li>No lessons scheduled.</li>
+    {% endfor %}
+</ul>
+
+<h2>Pending Requests</h2>
+<ul>
+    {% for request_obj in requests %}
+    <li>
+        {{ request_obj.student.full_name }} requests {{ request_obj.subject }} on {{ request_obj.preferred_date }} at {{ request_obj.preferred_time }}
+        - <a href="{% url 'request_detail' request_obj.pk %}">View Details</a>
+    </li>
+    {% empty %}
+    <li>No pending requests.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
