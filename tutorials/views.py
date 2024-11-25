@@ -104,7 +104,7 @@ class LogInView(LoginProhibitedMixin, View):
         user = form.get_user()
         if user is not None:
             login(request, user)
-            if user.is_staff:  # Check if the user is an admin
+            if user.role == 'admin':  # Check if the user is an admin
                 return redirect('admin_dashboard')
             elif user.role == 'student':
                 return redirect('student_dashboard')
