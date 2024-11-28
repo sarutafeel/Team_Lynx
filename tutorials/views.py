@@ -99,6 +99,7 @@ class LogInView(LoginProhibitedMixin, View):
 
     def post(self, request):
         """Handle log in attempt."""
+
         form = LogInForm(request.POST)
         self.next = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
         user = form.get_user()
@@ -113,7 +114,6 @@ class LogInView(LoginProhibitedMixin, View):
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
         return self.render()
 
-    
     def render(self):
         """Render log in template with blank log in form."""
 
@@ -187,7 +187,6 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
-<<<<<<< HEAD
     
 class TutorSignUpView(LoginProhibitedMixin, FormView):
     """View to handle tutor signups."""
@@ -206,6 +205,3 @@ class TutorSignUpView(LoginProhibitedMixin, FormView):
     def get_success_url(self):
         return reverse('tutor_dashboard')
 
-     
-=======
->>>>>>> origin/Adel
