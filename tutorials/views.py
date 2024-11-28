@@ -26,6 +26,37 @@ def home(request):
 
     return render(request, 'home.html')
 
+@login_required
+def student_dashboard(request):
+    return render(request, 'student_dashboard.html')
+
+@login_required
+def tutor_dashboard(request):
+    return render(request, 'tutor_dashboard.html')
+
+@login_required
+def admin_dashboard(request):
+    """Display the admin dashboard with relevant data."""
+    
+    if not request.user.is_staff:  # Ensure only admins access this page
+        return redirect('dashboard')  # Redirect non-admins to their dashboard
+    
+    # Example: Fetching data to display on the dashboard
+    requests = Request.objects.all()  # Replace with your model for requests
+    tutors = Tutor.objects.all()      # Replace with your model for tutors
+    analytics = {
+        "total_tutors": tutors.count(),
+        "total_students": Student.objects.count(),  # Replace with your model for students
+        "hours_taught": sum(tutor.hours_taught for tutor in tutors)  # Example calculation
+    }
+
+    context = {
+        "requests": requests,
+        "analytics": analytics,
+    }
+    return render(request, 'admin_dashboard.html', context)
+
+
 
 class LoginProhibitedMixin:
     """Mixin that redirects when a user is logged in."""
@@ -68,16 +99,21 @@ class LogInView(LoginProhibitedMixin, View):
 
     def post(self, request):
         """Handle log in attempt."""
-
         form = LogInForm(request.POST)
         self.next = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
         user = form.get_user()
         if user is not None:
             login(request, user)
-            return redirect(self.next)
+            if user.role == 'admin':  # Check if the user is an admin
+                return redirect('admin_dashboard')
+            elif user.role == 'student':
+                return redirect('student_dashboard')
+            elif user.role == 'tutor':
+                return redirect('tutor_dashboard')
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
         return self.render()
 
+    
     def render(self):
         """Render log in template with blank log in form."""
 
@@ -151,6 +187,7 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+<<<<<<< HEAD
     
 class TutorSignUpView(LoginProhibitedMixin, FormView):
     """View to handle tutor signups."""
@@ -170,3 +207,5 @@ class TutorSignUpView(LoginProhibitedMixin, FormView):
         return reverse('tutor_dashboard')
 
      
+=======
+>>>>>>> origin/Adel
