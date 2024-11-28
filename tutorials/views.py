@@ -151,3 +151,22 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+    
+class TutorSignUpView(LoginProhibitedMixin, FormView):
+    """View to handle tutor signups."""
+
+    form_class = SignUpForm
+    template_name = "tutor_sign_up.html"
+    redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
+
+    def form_valid(self, form):
+        # Save the user with is_staff=True
+        self.object = form.save(commit=True, is_staff=True)
+        # Log in the newly created tutor
+        login(self.request, self.object)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('tutor_dashboard')
+
+     
