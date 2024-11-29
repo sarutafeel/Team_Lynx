@@ -4,7 +4,7 @@
   <div class="row">
     <div class="col-12">
       <h1> Tutor Sign up</h1>
-      <form action="{% url 'sign_up' %}" method="post">
+      <form action="{% url 'tutor_sign_up' %}" method="post">
         {% csrf_token %}
         {% include 'partials/bootstrap_form.html' with form=form %}
         <input type="submit" value="Sign up" class="btn btn-primary">

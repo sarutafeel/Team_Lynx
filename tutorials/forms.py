@@ -116,8 +116,8 @@ class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
 
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
-
-def save(self):
+     
+     def save(self):
         """Create a new user."""
 
         super().save(commit=False)
@@ -129,7 +129,7 @@ def save(self):
             password=self.cleaned_data.get('new_password'),
         )
 
-        user.is_staff = True
+        user.is_staff = 1
         user.save()
 
         return user
