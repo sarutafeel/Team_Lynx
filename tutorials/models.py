@@ -2,15 +2,18 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from libgravatar import Gravatar
+from django.conf import settings
+from datetime import timedelta
+
 
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
     ROLE_CHOICES = (
         ('student', 'Student'),
         ('tutor', 'Tutor'),
-        ('admin', 'Admin'),
+        ('admin', 'Admin')
     )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, null=True) #change null to false later
     
     username = models.CharField(
         max_length=30,
@@ -46,3 +49,30 @@ class User(AbstractUser):
         """Return a URL to a miniature version of the user's gravatar."""
         
         return self.gravatar(size=60)
+    
+class LessonSchedule(models.Model):
+    tutor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tutor_schedule')
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='student_schedule')
+    subject = models.CharField(max_length=100)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    frequency = models.CharField(max_length=20, choices=[('weekly', 'Weekly'), ('fortnightly', 'Fortnightly')])
+    location = models.CharField(max_length=100)
+    status = models.CharField(max_length=20, choices=[('scheduled', 'Scheduled'), ('cancelled', 'Cancelled')], default='scheduled')
+
+    def __str__(self):
+        return f"{self.subject} - {self.student} with {self.tutor}"
+    
+
+class LessonRequest(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='requests')
+    subject = models.CharField(max_length=100)
+    frequency = models.CharField(max_length=20, choices=[('weekly', 'Weekly'), ('fortnightly', 'Fortnightly')])
+    duration = models.DurationField()  # Duration of the lesson (e.g., 1 hour)
+    additional_details = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Request from {self.student} for {self.subject}"

@@ -4,12 +4,19 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
-from django.shortcuts import redirect, render
+from django.http import HttpResponse #for placeholder
+from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tutorials.helpers import login_prohibited
+from django.utils.timezone import now
+from datetime import datetime, timedelta
+from .models import LessonSchedule
+from .models import LessonRequest
+from .forms import LessonScheduleForm
+from django.forms import ModelForm
 
 
 @login_required
@@ -28,15 +35,35 @@ def home(request):
 
 @login_required
 def student_dashboard(request):
-    return render(request, 'student_dashboard.html')
+    requests = LessonRequest.objects.filter(student=request.user)
+    schedules = LessonSchedule.objects.filter(student=request.user)
+    #return render(request, 'student/dashboard.html', {'requests': requests, 'schedules': schedules})
+    return HttpResponse("This is the student dashboard placeholder.")
 
 @login_required
 def tutor_dashboard(request):
-    return render(request, 'tutor_dashboard.html')
+    schedules = LessonSchedule.objects.filter(tutor=request.user)
+    return HttpResponse("This is the tutor dashboard placeholder.")
+    #return render(request, 'tutor/dashboard.html', {'schedules': schedules})
 
 @login_required
 def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
+    return HttpResponse("This is the admin dashboard placeholder.")
+    #return render(request, 'admin/dashboard.html')
+
+@login_required
+def add_lesson(request):
+    """Allow admins to add a new lesson manually."""
+    if request.method == 'POST':
+        form = LessonScheduleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Lesson scheduled successfully!")
+            return redirect('lesson_list')
+    else:
+        form = LessonScheduleForm()
+
+    return render(request, 'admin/add_lesson.html', {'form': form})
 
 
 class LoginProhibitedMixin:
@@ -83,17 +110,29 @@ class LogInView(LoginProhibitedMixin, View):
 
         form = LogInForm(request.POST)
         self.next = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
-        user = form.get_user()
-        if user is not None:
-            login(request, user)
-            if user.role == 'student':
-                return redirect('student_dashboard')
-            elif user.role == 'tutor':
-                return redirect('tutor_dashboard')
-            elif user.role == 'admin':
-                return redirect('admin_dashboard')
-        messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
-        return self.render()
+        if form.is_valid():
+            user = form.get_user()
+            print(f"User logged in: {user.username}, Role: {user.role}") # to debug delete later
+            if user is not None:
+                login(request, user)
+                # redirect to each dashbaord based on role
+                if user.role == 'student':
+                    print("Redirecting to student dashboard")
+                    return redirect('student_dashboard')
+                elif user.role == 'tutor':
+                    print("Redirecting to tutor dashboard")
+                    return redirect('tutor_dashboard')
+                elif user.role == 'admin':
+                    print("Redirecting to admin dashboard")
+                    return redirect('admin_dashboard')
+
+                # if invalid role redirect to home
+                messages.error(request, "Invalid role. Please contact support.")
+                return redirect('home')
+
+        
+        messages.error(request, "The credentials provided were invalid!")
+        return self.render(form=form)
 
     def render(self):
         """Render log in template with blank log in form."""
@@ -168,3 +207,51 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+    
+
+# show all lesson requests  
+def list_requests(request):
+    requests = LessonRequest.objects.all().order_by('-created_at')
+    return render(request, 'admin/request_list.html', {'requests': requests})
+
+# remove or reject lesson request 
+def handle_request(request, pk):
+    # approve or reject request
+    lesson_request = get_object_or_404(LessonRequest, pk=pk)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')  # action to approve or reject
+
+        if action == 'approve':
+            # create lesson schedule for approved request
+            LessonSchedule.objects.create(
+                tutor=request.POST.get('tutor'),
+                student=lesson_request.student,
+                subject=lesson_request.subject,
+                start_time=request.POST.get('start_time'),
+                end_time=request.POST.get('end_time'),
+                frequency=lesson_request.frequency,
+                location=request.POST.get('location'),
+                status='scheduled',
+            )
+            lesson_request.status = 'approved'
+            messages.success(request, "Request approved and lesson scheduled!")
+        elif action == 'reject':
+            lesson_request.status = 'rejected'
+            messages.warning(request, "Request rejected.")
+        lesson_request.save()
+
+        return redirect('list_requests')
+
+    tutors = request.user.objects.filter(role='tutor')  # only tutors
+    return render(request, 'admin/handle_request.html', {'request': lesson_request, 'tutors': tutors})
+
+def lesson_list(request):
+    # show all scheduled lesson
+    lessons = LessonSchedule.objects.all().order_by('start_time')
+    return render(request, 'admin/lesson_list.html', {'lessons': lessons})
+
+class LessonScheduleForm(ModelForm):
+    class Meta:
+        model = LessonSchedule
+        fields = ['tutor', 'student', 'subject', 'start_time', 'end_time', 'frequency', 'location']
