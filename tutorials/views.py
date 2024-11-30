@@ -11,9 +11,12 @@ from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tutorials.helpers import login_prohibited
 from tutorials.forms import TutorSignUpForm
-from tutorials.models import Request, Tutor, Invoice, Student
+from tutorials.models import Request, Tutor, Invoice, Student, Lesson
 from django.db import models
 from django.db.models import Sum
+from tutorials.forms import RequestForm
+from django.contrib import messages
+from datetime import timedelta
 
 @login_required
 def mark_paid(request, invoice_id):
@@ -62,7 +65,78 @@ def student_dashboard(request):
 
 @login_required
 def tutor_dashboard(request):
-    return render(request, 'tutor_dashboard.html')
+    if request.user.role != 'tutor':
+        return redirect('dashboard')
+
+    # Get all lessons for this tutor
+    lessons = Lesson.objects.filter(tutor=request.user)
+
+    # Get all pending requests assigned to this tutor
+    requests = Request.objects.filter(tutor=request.user, status='Pending')
+
+    context = {
+        'lessons': lessons,
+        'requests': requests,
+    }
+    return render(request, 'tutor_dashboard.html', context)
+
+
+@login_required
+def accept_request(request, request_id):
+    # Ensure the user is a tutor
+    if request.user.role != 'tutor':
+        return HttpResponseForbidden("You are not authorized to perform this action.")
+
+    lesson_request = get_object_or_404(Request, id=request_id, tutor=request.user)
+
+    if request.method == 'POST':
+        # Retrieve form data
+        date = request.POST.get('date')
+        time = request.POST.get('time')
+        duration_minutes = request.POST.get('duration')
+        location = request.POST.get('location')
+        
+        # Create a new lesson based on the request
+        Lesson.objects.create(
+            tutor=request.user,
+            student=lesson_request.student,
+            date=date,
+            time=time,
+            duration=timedelta(minutes=int(duration_minutes)),
+            location=location,
+            topic=lesson_request.topic,
+        )
+        # Update request status to 'Accepted'
+        lesson_request.status = 'Accepted'
+        lesson_request.save()
+        messages.success(request, 'Request accepted and lesson scheduled.')
+        return redirect('tutor_dashboard')
+
+    return render(request, 'accept_request.html', {'request': lesson_request})
+
+@login_required
+def reject_request(request, request_id):
+    # Ensure the user is a tutor
+    if request.user.role != 'tutor':
+        return HttpResponseForbidden("You are not authorized to perform this action.")
+
+    lesson_request = get_object_or_404(Request, id=request_id, tutor=request.user)
+
+    if request.method == 'POST':
+        # Optionally get the reason for rejection
+        reason = request.POST.get('reason', '')
+        # Update request status to 'Rejected'
+        lesson_request.status = 'Rejected'
+        lesson_request.save()
+        messages.success(request, 'Request rejected.')
+        return redirect('tutor_dashboard')
+
+    return render(request, 'reject_request.html', {'request': lesson_request})
+
+@login_required
+def lesson_detail(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id, tutor=request.user)
+    return render(request, 'lesson_detail.html', {'lesson': lesson})
 
 
 @login_required

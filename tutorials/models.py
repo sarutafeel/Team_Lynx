@@ -2,6 +2,7 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from libgravatar import Gravatar
+from django.conf import settings
 
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
@@ -46,3 +47,39 @@ class User(AbstractUser):
         """Return a URL to a miniature version of the user's gravatar."""
         
         return self.gravatar(size=60)
+    
+
+class Lesson(models.Model):
+    tutor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lessons')
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='student_lessons')
+    date = models.DateField()
+    time = models.TimeField()
+    duration = models.DurationField()
+    location = models.CharField(max_length=255)
+    topic = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.topic} with {self.student.full_name()} on {self.date}"
+
+class Request(models.Model):
+    STATUS_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Accepted', 'Accepted'),
+        ('Rejected', 'Rejected'),
+    )
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='requests')
+    tutor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tutor_requests', null=True, blank=True)
+    topic = models.CharField(max_length=255)
+    message = models.TextField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Request from {self.student.full_name()} for {self.topic}"
+    
+class Tutor(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    expertise = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.user.full_name()

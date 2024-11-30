@@ -1,0 +1,30 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+    <h1>Accept Request from {{ request.student.full_name }}</h1>
+    <p><strong>Topic:</strong> {{ request.topic }}</p>
+    <p><strong>Message:</strong> {{ request.message }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="date" class="form-label">Date</label>
+            <input type="date" name="date" id="date" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="time" class="form-label">Time</label>
+            <input type="time" name="time" id="time" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="duration" class="form-label">Duration (in minutes)</label>
+            <input type="number" name="duration" id="duration" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" name="location" id="location" class="form-control" value="Online" required>
+        </div>
+        <input type="submit" value="Accept Request" class="btn btn-success">
+        <a href="{% url 'tutor_dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+

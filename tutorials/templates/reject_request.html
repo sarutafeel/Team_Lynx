@@ -1,0 +1,17 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+    <h1>Reject Request from {{ request.student.full_name }}</h1>
+    <p><strong>Topic:</strong> {{ request.topic }}</p>
+    <p><strong>Message:</strong> {{ request.message }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="reason" class="form-label">Reason for Rejection (optional)</label>
+            <textarea name="reason" id="reason" class="form-control"></textarea>
+        </div>
+        <input type="submit" value="Reject Request" class="btn btn-danger">
+        <a href="{% url 'tutor_dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

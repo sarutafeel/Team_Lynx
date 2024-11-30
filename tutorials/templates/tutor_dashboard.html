@@ -1,0 +1,54 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+    <h1>Welcome, {{ user.first_name }}</h1>
+    <h2>Your Lessons</h2>
+    <table class="table">
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Student</th>
+            <th>Topic</th>
+            <th>Actions</th>
+        </tr>
+        {% for lesson in lessons %}
+        <tr>
+            <td>{{ lesson.date }}</td>
+            <td>{{ lesson.time }}</td>
+            <td>{{ lesson.student.full_name }}</td>
+            <td>{{ lesson.topic }}</td>
+            <td><a href="{% url 'lesson_detail' lesson.id %}">View</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No lessons scheduled.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Pending Requests</h2>
+    <table class="table">
+        <tr>
+            <th>Student</th>
+            <th>Topic</th>
+            <th>Message</th>
+            <th>Actions</th>
+        </tr>
+        {% for request in requests %}
+        <tr>
+            <td>{{ request.student.full_name }}</td>
+            <td>{{ request.topic }}</td>
+            <td>{{ request.message }}</td>
+            <td>
+                <a href="{% url 'accept_request' request.id %}" class="btn btn-success">Accept</a>
+                <a href="{% url 'reject_request' request.id %}" class="btn btn-danger">Reject</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No pending requests.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

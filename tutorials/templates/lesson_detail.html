@@ -1,0 +1,13 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+    <h1>Lesson Details</h1>
+    <p><strong>Date:</strong> {{ lesson.date }}</p>
+    <p><strong>Time:</strong> {{ lesson.time }}</p>
+    <p><strong>Duration:</strong> {{ lesson.duration }}</p>
+    <p><strong>Student:</strong> {{ lesson.student.full_name }}</p>
+    <p><strong>Topic:</strong> {{ lesson.topic }}</p>
+    <p><strong>Location:</strong> {{ lesson.location }}</p>
+    <a href="{% url 'tutor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
