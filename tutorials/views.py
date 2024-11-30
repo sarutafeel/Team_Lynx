@@ -4,12 +4,14 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tutorials.helpers import login_prohibited
+from .models import Lesson, Request
+from .forms import RequestResponseForm
 
 
 @login_required
@@ -20,23 +22,49 @@ def dashboard(request):
     return render(request, 'dashboard.html', {'user': current_user})
 
 
+@login_required
+def tutor_dashboard(request):
+    """Display tutor's dashboard with lessons and requests."""
+    tutor = request.user
+    lessons = Lesson.objects.filter(tutor=tutor).order_by('date', 'start_time')
+    requests = Request.objects.filter(tutor=tutor, status='Pending')
+    context = {
+        'lessons': lessons,
+        'requests': requests,
+    }
+    return render(request, 'tutor_dashboard.html', context)
+
+
+@login_required
+def request_detail(request, pk):
+    """Display details of a specific lesson request."""
+    lesson_request = get_object_or_404(Request, pk=pk, tutor=request.user)
+    if request.method == 'POST':
+        form = RequestResponseForm(request.POST, instance=lesson_request)
+        if form.is_valid():
+            form.save()
+            # If accepted, create a new lesson
+            if lesson_request.status == 'Accepted':
+                Lesson.objects.create(
+                    tutor=request.user,
+                    student=lesson_request.student,
+                    date=lesson_request.preferred_date,
+                    start_time=lesson_request.preferred_time,
+                    end_time=lesson_request.preferred_time,  # Adjust as needed
+                    location='TBD',  # Or get from request or tutor's default location
+                    subject=lesson_request.subject,
+                )
+            return redirect('tutor_dashboard')
+    else:
+        form = RequestResponseForm(instance=lesson_request)
+    return render(request, 'request_detail.html', {'form': form, 'request_obj': lesson_request})
+
+
 @login_prohibited
 def home(request):
     """Display the application's start/home screen."""
 
     return render(request, 'home.html')
-
-@login_required
-def student_dashboard(request):
-    return render(request, 'student_dashboard.html')
-
-@login_required
-def tutor_dashboard(request):
-    return render(request, 'tutor_dashboard.html')
-
-@login_required
-def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
 
 
 class LoginProhibitedMixin:
@@ -86,12 +114,7 @@ class LogInView(LoginProhibitedMixin, View):
         user = form.get_user()
         if user is not None:
             login(request, user)
-            if user.role == 'student':
-                return redirect('student_dashboard')
-            elif user.role == 'tutor':
-                return redirect('tutor_dashboard')
-            elif user.role == 'admin':
-                return redirect('admin_dashboard')
+            return redirect(self.next)
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
         return self.render()
 
