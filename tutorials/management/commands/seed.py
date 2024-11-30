@@ -1,27 +1,16 @@
-from django.core.management.base import BaseCommand, CommandError
-
+from django.core.management.base import BaseCommand
 from tutorials.models import User
-
 import pytz
 from faker import Faker
-from random import randint, random
 
 user_fixtures = [
-    {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe'},
-    {'username': '@janedoe', 'email': 'jane.doe@example.org', 'first_name': 'Jane', 'last_name': 'Doe'},
-    {'username': '@charlie', 'email': 'charlie.johnson@example.org', 'first_name': 'Charlie', 'last_name': 'Johnson'},
+    {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe', 'role': 'admin', 'is_staff': True,
+        'is_superuser': True,},
+    {'username': '@janedoe', 'email': 'jane.doe@example.org', 'first_name': 'Jane', 'last_name': 'Doe', 'role': 'tutor'},
+    {'username': '@charlie', 'email': 'charlie.johnson@example.org', 'first_name': 'Charlie', 'last_name': 'Johnson', 'role': 'student'},
 ]
 
-user_roles = {
-    '@johndoe': {'is_staff': True, 'is_superuser': True},  # Admin user
-    '@janedoe': {'is_staff': False, 'is_superuser': False},  # Tutor user
-    '@charlie': {'is_staff': False, 'is_superuser': False},  # Student user
-}
-
-
 class Command(BaseCommand):
-    """Build automation command to seed the database."""
-
     USER_COUNT = 300
     DEFAULT_PASSWORD = 'Password123'
     help = 'Seeds the database with sample data'
@@ -31,54 +20,57 @@ class Command(BaseCommand):
         self.faker = Faker('en_GB')
 
     def handle(self, *args, **options):
-        self.create_users()
-        self.users = User.objects.all()
-
-    def create_users(self):
         self.generate_user_fixtures()
         self.generate_random_users()
+        print("Seeding complete!")
+
+    def create_user(self, data):
+        user = User.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            password=Command.DEFAULT_PASSWORD,
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            role=data['role'],
+        )
+        user.is_staff = data.get('is_staff', False)
+        user.is_superuser = data.get('is_superuser', False)
+        user.save()
 
     def generate_user_fixtures(self):
         for data in user_fixtures:
-            user = self.try_create_user(data)
-            if user and data['username'] in user_roles:
-                roles = user_roles[data['username']]
-                user.is_staff = roles.get('is_staff', False)
-                user.is_superuser = roles.get('is_superuser', False)
-                user.save()
+            self.try_create_user(data)
 
     def generate_random_users(self):
         user_count = User.objects.count()
-        while  user_count < self.USER_COUNT:
+        while user_count < self.USER_COUNT:
             print(f"Seeding user {user_count}/{self.USER_COUNT}", end='\r')
             self.generate_user()
             user_count = User.objects.count()
-        print("User seeding complete.      ")
+        print("User seeding complete.")
 
     def generate_user(self):
         first_name = self.faker.first_name()
         last_name = self.faker.last_name()
         email = create_email(first_name, last_name)
         username = create_username(first_name, last_name)
-        self.try_create_user({'username': username, 'email': email, 'first_name': first_name, 'last_name': last_name})
-       
+        role = 'student'  # Default role for random users
+        self.try_create_user({
+            'username': username,
+            'email': email,
+            'first_name': first_name,
+            'last_name': last_name,
+            'role': role,
+        })
+
     def try_create_user(self, data):
         try:
             self.create_user(data)
-        except:
-            pass
-
-    def create_user(self, data):
-        User.objects.create_user(
-            username=data['username'],
-            email=data['email'],
-            password=Command.DEFAULT_PASSWORD,
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-        )
+        except Exception as e:
+            print(f"Failed to create user: {e}")
 
 def create_username(first_name, last_name):
     return '@' + first_name.lower() + last_name.lower()
 
 def create_email(first_name, last_name):
-    return first_name + '.' + last_name + '@example.org'
+    return f"{first_name}.{last_name}@example.org"

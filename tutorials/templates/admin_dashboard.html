@@ -1,92 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-        .container {
-            padding: 20px;
-        }
-        .section {
-            margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .section h2 {
-            margin-top: 0;
-        }
-        .priority-high {
-            color: red;
-        }
-        .priority-medium {
-            color: orange;
-        }
-        .priority-low {
-            color: green;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>Admin Dashboard</h1>
-    </header>
-    <main>
-        <section>
-            <h2>Requests</h2>
-            <table>
-                <tr>
-                    <th>Student Name</th>
-                    <th>Request Type</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                </tr>
-                {% for request in requests %}
-                <tr>
-                    <td>{{ request.student.name }}</td>
-                    <td>{{ request.type }}</td>
-                    <td>{{ request.priority }}</td>
-                    <td>{{ request.status }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4">No requests available.</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </section>
-        <section>
-            <h2>Analytics</h2>
-            <ul>
-                <li>Total Tutors: {{ analytics.total_tutors }}</li>
-                <li>Total Students: {{ analytics.total_students }}</li>
-                <li>Total Hours Taught: {{ analytics.hours_taught }}</li>
-            </ul>
-        </section>
-    </main>
-</body>
-</html>
+{% extends 'base_content.html' %}
+{% block content %}
+    <section>
+        <h2>Requests</h2>
+        <table>
+            <tr>
+                <th>Student Name</th>
+                <th>Request Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Allocated</th>
+                <th>Actions</th>
+            </tr>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.student.name }}</td>
+                <td>{{ request.type }}</td>
+                <td>{{ request.priority }}</td>
+                <td>{{ request.status }}</td>
+                <td>{{ request.allocated|yesno:"Yes,No" }}</td>
+                <td>
+                    <a href="{% url 'allocate_request' request.id %}">Allocate</a> | 
+                    <a href="{% url 'message_student' request.student.id %}">Message</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No requests available.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+
+    <section>
+        <h2>Lesson Scheduling</h2>
+        <table>
+            <tr>
+                <th>Tutor Name</th>
+                <th>Subject</th>
+                <th>Availability</th>
+                <th>Actions</th>
+            </tr>
+            {% for tutor in tutors %}
+            <tr>
+                <td>{{ tutor.user.full_name }}</td>
+                <td>{{ tutor.subject }}</td>
+                <td>{{ tutor.availability }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No tutors available.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+
+    <section>
+        <h2>Invoices and Payments</h2>
+        <table>
+            <tr>
+                <th>Student Name</th>
+                <th>Tutor Name</th>
+                <th>Invoice ID</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.student.full_name }}</td>
+                <td>{{ invoice.tutor.user.full_name }}</td>
+                <td>{{ invoice.id }}</td>
+                <td>{{ invoice.amount }}</td>
+                <td>{{ invoice.status }}</td>
+                <td>
+                    <a href="{% url 'view_invoice' invoice.id %}">View</a> | 
+                    <a href="{% url 'mark_paid' invoice.id %}">Mark as Paid</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No invoices available.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+
+    <section>
+        <h2>Analytics</h2>
+        <ul>
+            <li>Total Tutors: {{ analytics.total_tutors }}</li>
+            <li>Total Students: {{ analytics.total_students }}</li>
+            <li>Total Hours Taught: {{ analytics.hours_taught }}</li>
+        </ul>
+    </section>
+{% endblock %}
