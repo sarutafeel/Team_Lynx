@@ -11,8 +11,7 @@ from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tutorials.helpers import login_prohibited
 from tutorials.forms import TutorSignUpForm
-
-from .models import Request, Tutor, Invoice, Student
+from tutorials.models import Request, Tutor, Invoice, Student
 from django.db import models
 from django.db.models import Sum
 
