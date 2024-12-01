@@ -19,16 +19,24 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from tutorials import views
+from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Custom admin dashboard
+    path('admin/', admin.site.urls),  # Built-in Django admin
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('log_in/', views.LogInView.as_view(), name='log_in'),
+    path('invoices/<int:invoice_id>/', views.view_invoice, name='view_invoice'),
+    path('invoices/<int:invoice_id>/mark_paid/', views.mark_paid, name='mark_paid'),
     path('log_out/', views.log_out, name='log_out'),
     path('password/', views.PasswordView.as_view(), name='password'),
     path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
     path('tutor_sign_up/', views.TutorSignUpView.as_view(), name='tutor_sign_up'),
+    path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('tutor/dashboard/', views.tutor_dashboard, name='tutor_dashboard'),
 ]
+
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
