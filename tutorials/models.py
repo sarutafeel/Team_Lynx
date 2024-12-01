@@ -34,6 +34,7 @@ class Tutor(models.Model):
     hourly_rate = models.DecimalField(max_digits=6, decimal_places=2)
     availability = models.TextField()  # Example field to store availability
     hours_taught = models.PositiveIntegerField(default=0)
+    
 
     def __str__(self):
         return f"Tutor: {self.user.full_name()}"
