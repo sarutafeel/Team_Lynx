@@ -10,15 +10,24 @@ class LogInForm(forms.Form):
     username = forms.CharField(label="Username")
     password = forms.CharField(label="Password", widget=forms.PasswordInput())
 
-    def get_user(self):
-        """Returns authenticated user if possible."""
+    def clean(self):
+        """Validate the credentials and add error messages if invalid."""
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        password = cleaned_data.get('password')
 
-        user = None
-        if self.is_valid():
-            username = self.cleaned_data.get('username')
-            password = self.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-        return user
+        # Check if the credentials are valid
+        user = authenticate(username=username, password=password)
+        if not user:
+            raise forms.ValidationError("Invalid username or password.")
+        self.user = user  # Save the authenticated user for later retrieval
+        return cleaned_data
+
+    def get_user(self):
+        """Returns the authenticated user if valid."""
+        if hasattr(self, 'user'):
+            return self.user
+        return None
 
 
 class UserForm(forms.ModelForm):
@@ -30,6 +39,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
+
 class NewPasswordMixin(forms.Form):
     """Form mixing for new_password and password_confirmation fields."""
 
@@ -39,14 +49,13 @@ class NewPasswordMixin(forms.Form):
         validators=[RegexValidator(
             regex=r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$',
             message='Password must contain an uppercase character, a lowercase '
-                    'character and a number'
+                    'character, and a number'
             )]
     )
     password_confirmation = forms.CharField(label='Password confirmation', widget=forms.PasswordInput())
 
     def clean(self):
-        """Form mixing for new_password and password_confirmation fields."""
-
+        """Ensure the passwords match."""
         super().clean()
         new_password = self.cleaned_data.get('new_password')
         password_confirmation = self.cleaned_data.get('password_confirmation')
@@ -66,8 +75,7 @@ class PasswordForm(NewPasswordMixin):
         self.user = user
 
     def clean(self):
-        """Clean the data and generate messages for any errors."""
-
+        """Validate current password and ensure new password confirmation matches."""
         super().clean()
         password = self.cleaned_data.get('password')
         if self.user is not None:
@@ -79,7 +87,6 @@ class PasswordForm(NewPasswordMixin):
 
     def save(self):
         """Save the user's new password."""
-
         new_password = self.cleaned_data['new_password']
         if self.user is not None:
             self.user.set_password(new_password)
@@ -92,13 +99,11 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 
     class Meta:
         """Form options."""
-
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
     def save(self):
         """Create a new user."""
-
         super().save(commit=False)
         user = User.objects.create_user(
             self.cleaned_data.get('username'),
@@ -108,6 +113,7 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
         return user
+<<<<<<< HEAD
     
 class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
 
@@ -133,3 +139,5 @@ class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
         user.save()
 
         return user
+=======
+>>>>>>> origin/Adel

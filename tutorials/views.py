@@ -4,15 +4,36 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tutorials.helpers import login_prohibited
+<<<<<<< HEAD
 from tutorials.forms import TutorSignUpForm
 
+=======
+from .models import Request, Tutor, Invoice, Student
+from django.db import models
+from django.db.models import Sum
+>>>>>>> origin/Adel
 
+@login_required
+def mark_paid(request, invoice_id):
+    """Mark an invoice as paid."""
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    invoice.status = 'Paid'  # Adjust based on your model field
+    invoice.save()
+    messages.success(request, f"Invoice {invoice.id} marked as paid.")
+    return redirect('admin_dashboard')
+
+
+@login_required
+def view_invoice(request, invoice_id):
+    """View the details of an invoice."""
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    return render(request, 'view_invoice.html', {'invoice': invoice})
 
 @login_required
 def dashboard(request):
@@ -27,6 +48,52 @@ def home(request):
     """Display the application's start/home screen."""
 
     return render(request, 'home.html')
+
+@login_required
+def dashboard(request):
+    """Redirect users to their role-specific dashboards."""
+    role_redirects = {
+        'admin': 'admin_dashboard',
+        'tutor': 'tutor_dashboard',
+        'student': 'student_dashboard',
+    }
+    return redirect(role_redirects.get(request.user.role, 'dashboard'))
+
+
+@login_required
+def student_dashboard(request):
+    return render(request, 'student_dashboard.html')
+
+@login_required
+def tutor_dashboard(request):
+    return render(request, 'tutor_dashboard.html')
+
+
+@login_required
+def admin_dashboard(request):
+    if not request.user.is_staff:
+        return redirect('dashboard')
+
+    # Fetching data
+    requests = Request.objects.select_related('student')  # Fetch related User via 'student'
+    tutors = Tutor.objects.select_related('user')  # Fetch related User via 'user'
+    invoices = Invoice.objects.select_related('student', 'tutor__user')  # Fetch related User for student and tutor
+
+    # Analytics
+    analytics = {
+        "total_tutors": tutors.count(),
+        "total_students": Student.objects.count(),
+        "hours_taught": tutors.aggregate(total_hours=Sum('hours_taught'))['total_hours'] or 0,
+    }
+
+    # Context for rendering
+    context = {
+        "requests": requests,
+        "tutors": tutors,
+        "invoices": invoices,
+        "analytics": analytics,
+    }
+    return render(request, "admin_dashboard.html", context)
 
 
 class LoginProhibitedMixin:
@@ -69,17 +136,29 @@ class LogInView(LoginProhibitedMixin, View):
         return self.render()
 
     def post(self, request):
-        """Handle log in attempt."""
-
+        """Handle the log in process."""
         form = LogInForm(request.POST)
         self.next = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
-        user = form.get_user()
-        if user is not None:
-            login(request, user)
-            return redirect(self.next)
+
+        if form.is_valid():
+            user = form.get_user()
+            if user is not None:
+                login(request, user)
+                
+                # Dynamically redirect based on role
+                role_redirects = {
+                    'admin': 'admin_dashboard',
+                    'tutor': 'tutor_dashboard',
+                    'student': 'student_dashboard',
+                }
+                return redirect(role_redirects.get(user.role, 'dashboard'))
+
+
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
         return self.render()
 
+
+    
     def render(self):
         """Render log in template with blank log in form."""
 
@@ -92,6 +171,7 @@ def log_out(request):
 
     logout(request)
     return redirect('home')
+
 
 
 class PasswordView(LoginRequiredMixin, FormView):
@@ -153,6 +233,7 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+<<<<<<< HEAD
     
 class TutorSignUpView(LoginProhibitedMixin, FormView):
     """View to handle tutor signups."""
@@ -171,3 +252,6 @@ class TutorSignUpView(LoginProhibitedMixin, FormView):
         return reverse('dashboard')
 
      
+=======
+    
+>>>>>>> origin/Adel
