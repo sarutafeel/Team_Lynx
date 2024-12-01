@@ -113,7 +113,6 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
         return user
-<<<<<<< HEAD
     
 class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
 
@@ -136,8 +135,7 @@ class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
         )
 
         user.is_staff = 1
+        user.is_superuser = 1
         user.save()
 
         return user
-=======
->>>>>>> origin/Adel

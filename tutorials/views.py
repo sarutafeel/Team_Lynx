@@ -10,14 +10,11 @@ from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tutorials.helpers import login_prohibited
-<<<<<<< HEAD
 from tutorials.forms import TutorSignUpForm
 
-=======
 from .models import Request, Tutor, Invoice, Student
 from django.db import models
 from django.db.models import Sum
->>>>>>> origin/Adel
 
 @login_required
 def mark_paid(request, invoice_id):
@@ -233,7 +230,6 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
-<<<<<<< HEAD
     
 class TutorSignUpView(LoginProhibitedMixin, FormView):
     """View to handle tutor signups."""
@@ -252,6 +248,3 @@ class TutorSignUpView(LoginProhibitedMixin, FormView):
         return reverse('dashboard')
 
      
-=======
-    
->>>>>>> origin/Adel
