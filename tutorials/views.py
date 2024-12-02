@@ -63,7 +63,10 @@ def student_dashboard(request):
 
 @login_required
 def tutor_dashboard(request):
-    return render(request, 'tutor_dashboard.html')
+    tutor_name = request.user.get_full_name() 
+    return render(request, 'tutor_dashboard.html', {
+        'tutor_name': tutor_name,
+    })
 
 
 @login_required
