@@ -1,30 +1,49 @@
-<h1>Welcome, {{ tutor.user.full_name }}</h1>
+{% extends 'base_content.html' %}
 
-<h2>Your Lessons</h2>
-<table>
-    <tr>
-        <th>Subject</th>
-        <th>Student</th>
-        <th>Date</th>
-        <th>Duration</th>
-        <th>Feedback</th>
-    </tr>
-    {% for lesson in lessons %}
-    <tr>
-        <td>{{ lesson.subject }}</td>
-        <td>{{ lesson.student.user.full_name }}</td>
-        <td>{{ lesson.date }}</td>
-        <td>{{ lesson.duration }}</td>
-        <td>{{ lesson.feedback|default:"No feedback yet" }}</td>
-    </tr>
-    {% endfor %}
-</table>
+{% block content %}
+    <section>
+        <h2>Your Lessons</h2>
+        <table>
+            <tr>
+                <th>Subject</th>
+                <th>Student Name</th>
+                <th>Date</th>
+                <th>Duration</th>
+                <th>Feedback</th>
+            </tr>
+            {% for lesson in lessons %}
+            <tr>
+                <td>{{ lesson.subject }}</td>
+                <td>{{ lesson.student.user.full_name }}</td>
+                <td>{{ lesson.date|date:"Y-m-d H:i" }}</td>
+                <td>{{ lesson.duration }}</td>
+                <td>{{ lesson.feedback|default:"No feedback yet" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No lessons scheduled.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
 
-<h2>Notifications</h2>
-<ul>
-    {% for notification in notifications %}
-    <li>{{ notification.message }} ({{ notification.created_at }})</li>
-    {% empty %}
-    <li>No new notifications.</li>
-    {% endfor %}
-</ul>
+    <section>
+        <h2>Notifications</h2>
+        <table>
+            <tr>
+                <th>Message</th>
+                <th>Date</th>
+            </tr>
+            {% for notification in notifications %}
+            <tr>
+                <td>{{ notification.message }}</td>
+                <td>{{ notification.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No new notifications.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+{% endblock %}
