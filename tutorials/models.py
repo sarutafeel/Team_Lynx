@@ -2,16 +2,20 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from libgravatar import Gravatar
+from django.contrib.auth.models import User
+from django.conf import settings
+
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    is_student = models.BooleanField(default=False)  # Mark as student
+    # Other fields for tutors and students like language, experience, etc.
+
+    def __str__(self):
+        return self.user.username
 
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
-    ROLE_CHOICES = (
-        ('student', 'Student'),
-        ('tutor', 'Tutor'),
-        ('admin', 'Admin'),
-    )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    
+
     username = models.CharField(
         max_length=30,
         unique=True,

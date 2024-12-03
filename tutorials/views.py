@@ -10,7 +10,23 @@ from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tutorials.helpers import login_prohibited
+from django.http import HttpResponseForbidden
 
+
+# View for the student dashboard
+@login_required
+def student_dashboard(request):
+    if request.user.is_student:  # Check if the logged-in user is a student
+        # Fetch relevant student data (e.g., bookings, feedback, etc.)
+        feedbacks = request.user.feedbacks.all() 
+        bookings = request.user.bookings.all()  
+        context = {
+            'feedbacks': feedbacks,
+            'bookings': bookings,
+        }
+        return render(request, 'student_dashboard.html', context)
+    else:
+        return HttpResponseForbidden("You are not authorised to view this page.")
 
 @login_required
 def dashboard(request):
@@ -25,18 +41,6 @@ def home(request):
     """Display the application's start/home screen."""
 
     return render(request, 'home.html')
-
-@login_required
-def student_dashboard(request):
-    return render(request, 'student_dashboard.html')
-
-@login_required
-def tutor_dashboard(request):
-    return render(request, 'tutor_dashboard.html')
-
-@login_required
-def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
 
 
 class LoginProhibitedMixin:
@@ -86,12 +90,7 @@ class LogInView(LoginProhibitedMixin, View):
         user = form.get_user()
         if user is not None:
             login(request, user)
-            if user.role == 'student':
-                return redirect('student_dashboard')
-            elif user.role == 'tutor':
-                return redirect('tutor_dashboard')
-            elif user.role == 'admin':
-                return redirect('admin_dashboard')
+            return redirect(self.next)
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
         return self.render()
 
