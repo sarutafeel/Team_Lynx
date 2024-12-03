@@ -63,10 +63,16 @@ def student_dashboard(request):
 
 @login_required
 def tutor_dashboard(request):
-    tutor_name = request.user.get_full_name() 
+    tutor = Tutor.objects.get(user=request.user)
+    lessons = Lesson.objects.filter(tutor=tutor).select_related('student')
+    notifications = Notification.objects.filter(user=request.user, is_read=False)
+
     return render(request, 'tutor_dashboard.html', {
-        'tutor_name': tutor_name,
+        'tutor': tutor,
+        'lessons': lessons,
+        'notifications': notifications,
     })
+
 
 
 @login_required

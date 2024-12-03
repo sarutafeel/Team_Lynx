@@ -74,6 +74,26 @@ class Request(models.Model):
 #     def __str__(self):
 #         return f"Request by {self.student.user.full_name()} - {self.type}"
     
+class Lesson(models.Model):
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name='lessons')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='lessons')
+    subject = models.CharField(max_length=100)
+    date = models.DateTimeField()
+    duration = models.DurationField()
+    feedback = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Lesson: {self.subject} ({self.date})"
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Notification for {self.user.username}"
 
 
 

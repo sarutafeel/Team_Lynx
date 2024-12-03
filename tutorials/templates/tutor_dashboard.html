@@ -1,0 +1,30 @@
+<h1>Welcome, {{ tutor.user.full_name }}</h1>
+
+<h2>Your Lessons</h2>
+<table>
+    <tr>
+        <th>Subject</th>
+        <th>Student</th>
+        <th>Date</th>
+        <th>Duration</th>
+        <th>Feedback</th>
+    </tr>
+    {% for lesson in lessons %}
+    <tr>
+        <td>{{ lesson.subject }}</td>
+        <td>{{ lesson.student.user.full_name }}</td>
+        <td>{{ lesson.date }}</td>
+        <td>{{ lesson.duration }}</td>
+        <td>{{ lesson.feedback|default:"No feedback yet" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h2>Notifications</h2>
+<ul>
+    {% for notification in notifications %}
+    <li>{{ notification.message }} ({{ notification.created_at }})</li>
+    {% empty %}
+    <li>No new notifications.</li>
+    {% endfor %}
+</ul>
