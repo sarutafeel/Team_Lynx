@@ -8,7 +8,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, FeedbackForm
 from tutorials.helpers import login_prohibited
 from tutorials.forms import TutorSignUpForm
 
@@ -94,7 +94,6 @@ def admin_dashboard(request):
         "analytics": analytics,
     }
     return render(request, "admin_dashboard.html", context)
-
 
 class LoginProhibitedMixin:
     """Mixin that redirects when a user is logged in."""
@@ -249,5 +248,18 @@ class TutorSignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse('dashboard')
+    
+class FeedbackView(FormView):
+    """View to handle Feedback"""
+
+    form_class = FeedbackForm
+    template_name = "feedback.html"
+
+    def form_valid(self, form):
+        messages.success(self.request, "Thank you for your feedback")
+        return super().form_valid(form)
+    
+
+    
 
      

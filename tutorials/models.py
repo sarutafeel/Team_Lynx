@@ -62,6 +62,16 @@ class Request(models.Model):
     def __str__(self):
         return f"{self.type} ({self.student.username})"
     
+class Feedback(models.Model):
+    name = models.CharField(max_length=50)
+    email = models.EmailField(unique=True, blank=False)
+    message = models.TextField(max_length=500)
+    posted = models.DateTimeField(auto_now_add=True)  
+
+    def __str__(self):
+        return f"Feedback from {self.name} at {self.posted}"
+    
+    
 
 #Alternate Request Model
 # class Request(models.Model):

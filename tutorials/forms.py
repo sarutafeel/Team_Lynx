@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User
+from .models import User, Feedback
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -135,7 +135,14 @@ class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
         )
 
         user.is_staff = 1
-        user.is_superuser = 1
+        user.role = 'tutor'
         user.save()
 
         return user
+     
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        """Form options"""
+
+        model = Feedback
+        fields = ['name','email','message']
