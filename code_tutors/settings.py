@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_REDIRECT_URL = '/student_dashboard/'  # Redirect students to their dashboard after login
 
 # Application definition
 
