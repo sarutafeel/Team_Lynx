@@ -1,31 +1,56 @@
 {% extends 'base_content.html' %}
 {% block content %}
     <section>
-        <h2>Requests</h2>
-        <table>
+        <h2>Student Requests</h2>
+        <table class="request-table">
             <tr>
                 <th>Student Name</th>
-                <th>Request Type</th>
-                <th>Priority</th>
+                <th>Subject</th>
+                <th>Frequency</th>
+                <th>Preferred Time</th>
+                <th>Details</th>
                 <th>Status</th>
-                <th>Allocated</th>
                 <th>Actions</th>
             </tr>
-            {% for request in requests %}
+            {% for request in student_requests %}
             <tr>
-                <td>{{ request.student.name }}</td>
-                <td>{{ request.type }}</td>
-                <td>{{ request.priority }}</td>
+                <td>{{ request.student.first_name }} {{ request.student.last_name }}</td>
+                <td>{{ request.subject }}</td>
+                <td>{{ request.frequency }}</td>
+                <td>{{ request.preferred_time }}</td>
+                <td>{{ request.additional_details }}</td>
                 <td>{{ request.status }}</td>
-                <td>{{ request.allocated|yesno:"Yes,No" }}</td>
                 <td>
-                    <a href="{% url 'allocate_request' request.id %}">Allocate</a> | 
-                    <a href="{% url 'message_student' request.student.id %}">Message</a>
+                    <a href="{% url 'pair_request' request.id 0 %}">Pair</a>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6">No requests available.</td>
+                <td colspan="7">No student requests available.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+
+    <section>
+        <h2>Tutor Requests</h2>
+        <table class="request-table">
+            <tr>
+                <th>Tutor Name</th>
+                <th>Languages</th>
+                <th>Available Time</th>
+                <th>Details</th>
+            </tr>
+            {% for request in tutor_requests %}
+            <tr>
+                <td>{{ request.tutor.first_name }} {{ request.tutor.last_name }}</td>
+                <td>{{ request.languages }}</td>
+                <td>{{ request.available_time }}</td>
+                <td>{{ request.additional_details }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No tutor requests available.</td>
             </tr>
             {% endfor %}
         </table>
