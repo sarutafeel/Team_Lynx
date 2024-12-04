@@ -36,19 +36,32 @@
         <table>
             <tr>
                 <th>Tutor Name</th>
+                <th>Student Name</th>
                 <th>Subject</th>
-                <th>Availability</th>
-                <th>Actions</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Frequency</th>
+                <th>Location</th>
+                <th>Status</th>
             </tr>
-            {% for tutor in tutors %}
+            {% for lesson in lessons %}
             <tr>
-                <td>{{ tutor.user.full_name }}</td>
-                <td>{{ tutor.subject }}</td>
-                <td>{{ tutor.availability }}</td>
+                <td>{{ lesson.tutor.username }}</td>
+                <td>{{ lesson.student.username }}</td>
+                <td>{{ lesson.subject }}</td>
+                <td>{{ lesson.start_time }}</td>
+                <td>{{ lesson.end_time }}</td>
+                <td>{{ lesson.frequency }}</td>
+                <td>{{ lesson.location }}</td>
+                <td>{{ lesson.status }}</td>
+                <td>
+                    <a href="{% url 'edit_lesson' lesson.id %}">Edit</a> | 
+                    <a href="{% url 'delete_lesson' lesson.id %}" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4">No tutors available.</td>
+                <td colspan="10">No lessons scheduled.</td>
             </tr>
             {% endfor %}
         </table>

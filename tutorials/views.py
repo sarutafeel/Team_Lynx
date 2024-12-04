@@ -12,9 +12,11 @@ from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, Feedb
 from tutorials.helpers import login_prohibited
 from tutorials.forms import TutorSignUpForm
 
-from .models import Request, Tutor, Invoice, Student
+from .models import Request, Tutor, Invoice, Student, LessonSchedule
 from django.db import models
 from django.db.models import Sum
+
+from .forms import LessonScheduleForm
 
 @login_required
 def mark_paid(request, invoice_id):
@@ -59,14 +61,19 @@ def dashboard(request):
 
 @login_required
 def student_dashboard(request):
-    return render(request, 'student_dashboard.html')
+    # lesson scheduling
+    lessons = LessonSchedule.objects.filter(student=request.user).order_by('start_time')
+    return render(request, 'student_dashboard.html',  {'lessons': lessons})
 
 @login_required
 def tutor_dashboard(request):
     tutor_name = request.user.get_full_name() 
+
+    #lesson scheduling
+    lessons = LessonSchedule.objects.filter(tutor=request.user).order_by('start_time')
+
     return render(request, 'tutor_dashboard.html', {
-        'tutor_name': tutor_name,
-    })
+        'tutor_name': tutor_name,}, {'lessons': lessons})
 
 
 @login_required
@@ -93,7 +100,13 @@ def admin_dashboard(request):
         "invoices": invoices,
         "analytics": analytics,
     }
-    return render(request, "admin_dashboard.html", context)
+
+    # lesson scheduling
+    lessons = LessonSchedule.objects.all().order_by('start_time')  
+    context = {
+        'lessons': lessons,  # pass lessons to the template
+    }
+    return render(request, "admin_dashboard.html", context )
 
 class LoginProhibitedMixin:
     """Mixin that redirects when a user is logged in."""
@@ -120,6 +133,26 @@ class LoginProhibitedMixin:
             )
         else:
             return self.redirect_when_logged_in_url
+        
+@login_required
+def edit_lesson(request, pk):
+    lesson = get_object_or_404(LessonSchedule, pk=pk)
+    if request.method == 'POST':
+        form = LessonScheduleForm(request.POST, instance=lesson)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Lesson updated successfully!")
+            return redirect('admin_dashboard')
+    else:
+        form = LessonScheduleForm(instance=lesson)
+    return render(request, 'admin/edit_lesson.html', {'form': form})
+
+@login_required
+def delete_lesson(request, pk):
+    lesson = get_object_or_404(LessonSchedule, pk=pk)
+    lesson.delete()
+    messages.success(request, "Lesson deleted successfully!")
+    return redirect('admin_dashboard')
 
 
 class LogInView(LoginProhibitedMixin, View):

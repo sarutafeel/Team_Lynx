@@ -7,6 +7,8 @@ from django.conf import settings
 
 
 
+
+
 class Student(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="student_profile")
     enrollment_date = models.DateField(auto_now_add=True)
@@ -70,6 +72,34 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"Feedback from {self.name} at {self.posted}"
+    
+class LessonSchedule(models.Model):
+    tutor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='tutor_schedule'
+    )
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='student_schedule'
+    )
+    subject = models.CharField(max_length=100)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    frequency = models.CharField(
+        max_length=20,
+        choices=[('weekly', 'Weekly'), ('fortnightly', 'Fortnightly')]
+    )
+    location = models.CharField(max_length=100)
+    status = models.CharField(
+        max_length=20,
+        choices=[('scheduled', 'Scheduled'), ('cancelled', 'Cancelled')],
+        default='scheduled'
+    )
+
+    def __str__(self):
+        return f"{self.subject} - {self.student} with {self.tutor}"
     
     
 
