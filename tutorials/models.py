@@ -91,7 +91,6 @@ class LessonSchedule(models.Model):
         max_length=20,
         choices=[('weekly', 'Weekly'), ('fortnightly', 'Fortnightly')]
     )
-    location = models.CharField(max_length=100)
     status = models.CharField(
         max_length=20,
         choices=[('scheduled', 'Scheduled'), ('cancelled', 'Cancelled')],

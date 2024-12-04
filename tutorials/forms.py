@@ -150,4 +150,4 @@ class FeedbackForm(forms.ModelForm):
 class LessonScheduleForm(forms.ModelForm):
     class Meta:
         model = LessonSchedule
-        fields = ['tutor', 'student', 'subject', 'start_time', 'end_time', 'frequency', 'location', 'status']
+        fields = ['tutor', 'student', 'subject', 'start_time', 'end_time', 'frequency', 'status']

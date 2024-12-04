@@ -145,7 +145,7 @@ def edit_lesson(request, pk):
             return redirect('admin_dashboard')
     else:
         form = LessonScheduleForm(instance=lesson)
-    return render(request, 'admin/edit_lesson.html', {'form': form})
+    return render(request, 'edit_lesson.html', {'form': form})
 
 @login_required
 def delete_lesson(request, pk):
