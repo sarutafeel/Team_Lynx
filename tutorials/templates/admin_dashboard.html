@@ -1,61 +1,134 @@
 {% extends 'base_content.html' %}
 {% block content %}
-    <section>
-        <h2>Requests</h2>
-        <table>
-            <tr>
-                <th>Student Name</th>
-                <th>Request Type</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Allocated</th>
-                <th>Actions</th>
-            </tr>
-            {% for request in requests %}
-            <tr>
-                <td>{{ request.student.name }}</td>
-                <td>{{ request.type }}</td>
-                <td>{{ request.priority }}</td>
-                <td>{{ request.status }}</td>
-                <td>{{ request.allocated|yesno:"Yes,No" }}</td>
-                <td>
-                    <a href="{% url 'allocate_request' request.id %}">Allocate</a> | 
-                    <a href="{% url 'message_student' request.student.id %}">Message</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">No requests available.</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </section>
+    <div class="container my-4">
 
-    <section>
-        <h2>Lesson Scheduling</h2>
-        <table>
-            <tr>
-                <th>Tutor Name</th>
-                <th>Subject</th>
-                <th>Availability</th>
-                <th>Actions</th>
-            </tr>
-            {% for tutor in tutors %}
-            <tr>
-                <td>{{ tutor.user.full_name }}</td>
-                <td>{{ tutor.subject }}</td>
-                <td>{{ tutor.availability }}</td>
-                <td>
-                    <a href="{% url 'schedule_lesson' tutor.user.id %}">Schedule</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4">No tutors available.</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </section>
+        <!-- Requests Section -->
+        <section>
+            <h2 class="mb-3"> Student Requests</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Subject</th>
+                            <th>Frequency</th>
+                            <th>Preferred Time</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in student_requests %}
+                        <tr>
+                            <td>{{ request.student.first_name }} {{ request.student.last_name }}</td>
+                            <td>{{ request.subject }}</td>
+                            <td>{{ request.frequency }}</td>
+                            <td>{{ request.preferred_time }}</td>
+                            <td>{{ request.additional_details }}</td>
+                            <td>
+                                <span class="badge {% if request.status == 'pending' %}bg-warning{% elif request.status == 'approved' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ request.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'pair_request' request.id 0 %}" class="btn btn-primary btn-sm">Pair</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No student requests available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tutor Requests Section -->
+        <section class="mt-5">
+            <h2 class="mb-3">Tutor Requests</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-info">
+                        <tr>
+                            <th>Tutor Name</th>
+                            <th>Languages</th>
+                            <th>Available Time</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in tutor_requests %}
+                        <tr>
+                            <td>{{ request.tutor.first_name }} {{ request.tutor.last_name }}</td>
+                            <td>{{ request.languages }}</td>
+                            <td>{{ request.available_time }}</td>
+                            <td>{{ request.additional_details }}</td>
+                            <td>
+                                <span class="badge {% if request.status == 'available' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ request.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No tutor requests available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Lesson Scheduling Section -->
+        <section class="mt-5">
+            <h2 class="mb-3">Lesson Scheduling</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-dark text-light">
+                        <tr>
+                            <th>Tutor Name</th>
+                            <th>Student Name</th>
+                            <th>Subject</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Frequency</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lesson in lessons %}
+                        <tr>
+                            <td>{{ lesson.tutor.first_name }} {{ lesson.tutor.last_name }}</td>
+                            <td>{{ lesson.student.first_name }} {{ lesson.student.last_name }}</td>
+                            <td>{{ lesson.subject }}</td>
+                            <td>{{ lesson.start_time }}</td>
+                            <td>{{ lesson.end_time }}</td>
+                            <td>{{ lesson.frequency }}</td>
+                            <td>
+                                <span class="badge {% if lesson.status == 'scheduled' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ lesson.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'edit_lesson' lesson.id %}" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{% url 'delete_lesson' lesson.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No lessons scheduled.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
 
     <section>
         <h2>Invoices and Payments</h2>

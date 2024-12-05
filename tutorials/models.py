@@ -7,6 +7,8 @@ from django.conf import settings
 
 
 
+
+
 class Student(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="student_profile")
     enrollment_date = models.DateField(auto_now_add=True)
@@ -71,7 +73,55 @@ class Feedback(models.Model):
     def __str__(self):
         return f"Feedback from {self.name} at {self.posted}"
     
+class LessonSchedule(models.Model):
+    tutor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='tutor_schedule'
+    )
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='student_schedule'
+    )
+    subject = models.CharField(max_length=100)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    frequency = models.CharField(
+        max_length=20,
+        choices=[('weekly', 'Weekly'), ('fortnightly', 'Fortnightly')]
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=[('scheduled', 'Scheduled'), ('cancelled', 'Cancelled')],
+        default='scheduled'
+    )
+
+    def __str__(self):
+        return f"{self.subject} - {self.student} with {self.tutor}"
     
+class StudentRequest(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="student_requests")
+    subject = models.CharField(max_length=100)
+    frequency = models.CharField(max_length=20, choices=[('weekly', 'Weekly'), ('fortnightly', 'Fortnightly')])
+    preferred_time = models.TimeField() 
+    additional_details = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Request by {self.student.full_name} for {self.subject}"
+    
+class TutorRequest(models.Model):
+    tutor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tutor_requests")
+    languages = models.CharField(max_length=200)  
+    available_time = models.TimeField() 
+    additional_details = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=[('available', 'Available'), ('busy', 'Busy')], default='available')
+
+    def __str__(self):
+        return f"Request by {self.tutor.full_name} for teaching {self.languages}"
+
 
 #Alternate Request Model
 # class Request(models.Model):

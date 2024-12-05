@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Feedback
+from .models import User, Feedback, LessonSchedule
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -145,3 +145,8 @@ class FeedbackForm(forms.ModelForm):
 
         model = Feedback
         fields = ['name','email','message']
+
+class LessonScheduleForm(forms.ModelForm):
+    class Meta:
+        model = LessonSchedule
+        fields = ['tutor', 'student', 'subject', 'start_time', 'end_time', 'frequency', 'status']

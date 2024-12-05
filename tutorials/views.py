@@ -12,9 +12,11 @@ from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, Feedb
 from tutorials.helpers import login_prohibited
 from tutorials.forms import TutorSignUpForm
 
-from .models import Request, Tutor, Invoice, Student, Feedback
+from .models import Request, Tutor, Invoice, Student, LessonSchedule, StudentRequest, TutorRequest, Feedback
 from django.db import models
 from django.db.models import Sum
+
+from .forms import LessonScheduleForm
 
 @login_required
 def mark_paid(request, invoice_id):
@@ -59,14 +61,29 @@ def dashboard(request):
 
 @login_required
 def student_dashboard(request):
-    return render(request, 'student_dashboard.html')
+    # lesson scheduling
+    lessons = LessonSchedule.objects.filter(student=request.user).order_by('start_time')
+    context = {
+        'lessons': lessons,
+    }
+    return render(request, 'student_dashboard.html', context)
 
 @login_required
 def tutor_dashboard(request):
     tutor_name = request.user.get_full_name() 
-    return render(request, 'tutor_dashboard.html', {
+
+    #lesson scheduling
+    lessons = LessonSchedule.objects.filter(tutor=request.user).order_by('start_time')
+
+    #tutor requests
+    tutor_requests = TutorRequest.objects.filter(tutor=request.user).order_by('-status')
+
+    context = {
         'tutor_name': tutor_name,
-    })
+        'lessons': lessons,
+        'tutor_requests': tutor_requests,
+    }
+    return render(request, 'tutor_dashboard.html', context)
 
 
 @login_required
@@ -89,6 +106,12 @@ def admin_dashboard(request):
         "total_feedback": feedbacks.count(),  # Total feedback count
     }
 
+    student_requests = StudentRequest.objects.filter(status='pending').order_by('created_at')
+    tutor_requests = TutorRequest.objects.all()  
+
+    # lesson scheduling
+    lessons = LessonSchedule.objects.all().order_by('start_time')  
+
     # Context for rendering
     context = {
         "requests": requests, 
@@ -96,8 +119,12 @@ def admin_dashboard(request):
         "invoices": invoices,
         "feedbacks": feedbacks,  # Include feedback data
         "analytics": analytics,
+        'student_requests': student_requests,
+        'tutor_requests': tutor_requests,
+        'lessons': lessons,  
     }
-    return render(request, "admin_dashboard.html", context)
+
+    return render(request, "admin_dashboard.html", context )
 
 
 class LoginProhibitedMixin:
@@ -125,6 +152,26 @@ class LoginProhibitedMixin:
             )
         else:
             return self.redirect_when_logged_in_url
+        
+@login_required
+def edit_lesson(request, pk):
+    lesson = get_object_or_404(LessonSchedule, pk=pk)
+    if request.method == 'POST':
+        form = LessonScheduleForm(request.POST, instance=lesson)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Lesson updated successfully!")
+            return redirect('admin_dashboard')
+    else:
+        form = LessonScheduleForm(instance=lesson)
+    return render(request, 'edit_lesson.html', {'form': form})
+
+@login_required
+def delete_lesson(request, pk):
+    lesson = get_object_or_404(LessonSchedule, pk=pk)
+    lesson.delete()
+    messages.success(request, "Lesson deleted successfully!")
+    return redirect('admin_dashboard')
 
 
 class LogInView(LoginProhibitedMixin, View):
@@ -264,13 +311,48 @@ class FeedbackView(FormView):
         print(f"Saved feedback: {feedback.name}, {feedback.email}, {feedback.message}")
         messages.success(self.request, "Thank you for your feedback")
         return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('student_dashboard')
-
-
     
+@login_required
+def admin_request_list(request):
+    if not request.user.role == 'admin':
+        return redirect('dashboard')
 
-    
+    student_requests = StudentRequest.objects.filter(status='pending').order_by('created_at')
+    tutor_requests = TutorRequest.objects.all()  # Show all tutor requests
+
+    return render(request, 'request_list.html', {
+        'student_requests': student_requests,
+        'tutor_requests': tutor_requests,
+    })
+
+@login_required
+def pair_request(request, student_request_id, tutor_request_id):
+    if not request.user.role == 'admin':
+        return redirect('dashboard')
+
+    student_request = get_object_or_404(StudentRequest, id=student_request_id)
+    tutor_request = get_object_or_404(TutorRequest, id=tutor_request_id)
+
+    if request.method == 'POST':
+        # create lesson schedule after pairing
+        LessonSchedule.objects.create(
+            tutor=tutor_request.tutor,
+            student=student_request.student,
+            subject=student_request.subject,
+            start_time=request.POST.get('start_time'),
+            end_time=request.POST.get('end_time'),
+            frequency=student_request.frequency,
+            status='scheduled'
+        )
+        student_request.status = 'approved'
+        student_request.save()
+
+        messages.success(request, "Student and tutor paired successfully!")
+        return redirect('admin_request_list')
+
+    return render(request, 'pair_request.html', {
+        'student_request': student_request,
+        'tutor_request': tutor_request,
+    }) 
 
      

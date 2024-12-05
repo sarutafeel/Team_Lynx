@@ -26,6 +26,10 @@ from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard,
 urlpatterns = [
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Custom admin dashboard
     path('admin/', admin.site.urls),  # Built-in Django admin
+    path('admin/lesson/<int:pk>/edit/', views.edit_lesson, name='edit_lesson'),
+    path('admin/lesson/<int:pk>/delete/', views.delete_lesson, name='delete_lesson'),
+    path('admin/requests/', views.admin_request_list, name='admin_request_list'),
+    path('admin/pair/<int:student_request_id>/<int:tutor_request_id>/', views.pair_request, name='pair_request'),
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('log_in/', views.LogInView.as_view(), name='log_in'),
