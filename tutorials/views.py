@@ -63,7 +63,10 @@ def dashboard(request):
 def student_dashboard(request):
     # lesson scheduling
     lessons = LessonSchedule.objects.filter(student=request.user).order_by('start_time')
-    return render(request, 'student_dashboard.html',  {'lessons': lessons})
+    context = {
+        'lessons': lessons,
+    }
+    return render(request, 'student_dashboard.html', context)
 
 @login_required
 def tutor_dashboard(request):
@@ -71,9 +74,11 @@ def tutor_dashboard(request):
 
     #lesson scheduling
     lessons = LessonSchedule.objects.filter(tutor=request.user).order_by('start_time')
-
+    context = {
+        'lessons': lessons,
+    }
     return render(request, 'tutor_dashboard.html', {
-        'tutor_name': tutor_name,}, {'lessons': lessons})
+        'tutor_name': tutor_name,}, context)
 
 
 @login_required
