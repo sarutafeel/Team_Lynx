@@ -69,6 +69,13 @@ class Feedback(models.Model):
     email = models.EmailField()
     message = models.TextField(max_length=500)
     posted = models.DateTimeField(auto_now_add=True)  
+    lesson = models.ForeignKey(
+        'LessonSchedule', 
+        on_delete=models.CASCADE, 
+        related_name="feedbacks",
+        null=True, 
+        blank=True
+    ) 
 
     def __str__(self):
         return f"Feedback from {self.name} at {self.posted}"

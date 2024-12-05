@@ -141,10 +141,17 @@ class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
      
 class FeedbackForm(forms.ModelForm):
     class Meta:
-        """Form options"""
-
         model = Feedback
-        fields = ['name','email','message']
+        fields = ['name', 'email', 'message']
+
+    def save(self, lesson=None, commit=True):
+        feedback = super().save(commit=False)
+        if lesson:
+            feedback.lesson = lesson  
+        if commit:
+            feedback.save()
+        return feedback
+
 
 class LessonScheduleForm(forms.ModelForm):
     class Meta:

@@ -16,7 +16,7 @@ from .models import Request, Tutor, Invoice, Student, LessonSchedule, StudentReq
 from django.db import models
 from django.db.models import Sum
 
-from .forms import LessonScheduleForm
+from .forms import LessonScheduleForm, FeedbackForm
 
 @login_required
 def mark_paid(request, invoice_id):
@@ -70,20 +70,25 @@ def student_dashboard(request):
 
 @login_required
 def tutor_dashboard(request):
-    tutor_name = request.user.get_full_name() 
+    tutor_name = request.user.get_full_name()
 
-    #lesson scheduling
+    # Lesson scheduling
     lessons = LessonSchedule.objects.filter(tutor=request.user).order_by('start_time')
 
-    #tutor requests
+    # Tutor requests
     tutor_requests = TutorRequest.objects.filter(tutor=request.user).order_by('-status')
+
+    # Feedbacks from related students
+    feedbacks = Feedback.objects.filter(lesson__in=lessons).order_by('-posted')
 
     context = {
         'tutor_name': tutor_name,
         'lessons': lessons,
         'tutor_requests': tutor_requests,
+        'feedbacks': feedbacks,
     }
     return render(request, 'tutor_dashboard.html', context)
+
 
 
 @login_required
@@ -308,10 +313,18 @@ class FeedbackView(FormView):
     template_name = "feedback.html"
 
     def form_valid(self, form):
-        feedback = form.save()  # Save the feedback to the database
+        feedback = form.save(commit=False) 
+
+        lesson = LessonSchedule.objects.filter(student=self.request.user).last()
+
+        if lesson:
+            feedback.lesson = lesson
+        
+        feedback.save()
+
         print(f"Saved feedback: {feedback.name}, {feedback.email}, {feedback.message}")
         messages.success(self.request, "Thank you for your feedback")
-        return super().form_valid(form)
+        return redirect(self.request.path)
     
 @login_required
 def admin_request_list(request):

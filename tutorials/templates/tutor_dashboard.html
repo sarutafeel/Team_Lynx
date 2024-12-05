@@ -63,6 +63,36 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Feedback Section -->
+    <h2>Feedback from Students</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Lesson Subject</th>
+                <th>Submitted At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feedback in feedbacks %}
+            <tr>
+                <td>{{ feedback.lesson.student.get_full_name }}</td>
+                <td>{{ feedback.email }}</td>
+                <td>{{ feedback.message }}</td>
+                <td>{{ feedback.lesson.subject }}</td>
+                <td>{{ feedback.posted }}</td>
+        </tr>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No feedback available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
 
