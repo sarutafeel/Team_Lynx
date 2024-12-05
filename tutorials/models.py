@@ -64,7 +64,7 @@ class Request(models.Model):
     
 class Feedback(models.Model):
     name = models.CharField(max_length=50)
-    email = models.EmailField(unique=True, blank=False)
+    email = models.EmailField()
     message = models.TextField(max_length=500)
     posted = models.DateTimeField(auto_now_add=True)  
 

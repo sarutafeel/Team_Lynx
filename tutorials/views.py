@@ -12,7 +12,7 @@ from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, Feedb
 from tutorials.helpers import login_prohibited
 from tutorials.forms import TutorSignUpForm
 
-from .models import Request, Tutor, Invoice, Student
+from .models import Request, Tutor, Invoice, Student, Feedback
 from django.db import models
 from django.db.models import Sum
 
@@ -70,6 +70,7 @@ def tutor_dashboard(request):
 
 
 @login_required
+@login_required
 def admin_dashboard(request):
     if not request.user.is_staff:
         return redirect('dashboard')
@@ -78,22 +79,26 @@ def admin_dashboard(request):
     requests = Request.objects.select_related('student')  # Fetch related User via 'student'
     tutors = Tutor.objects.select_related('user')  # Fetch related User via 'user'
     invoices = Invoice.objects.select_related('student', 'tutor__user')  # Fetch related User for student and tutor
+    feedbacks = Feedback.objects.all().order_by('-posted')  # Fetch all feedback, ordered by newest first
 
     # Analytics
     analytics = {
         "total_tutors": tutors.count(),
         "total_students": Student.objects.count(),
         "hours_taught": tutors.aggregate(total_hours=Sum('hours_taught'))['total_hours'] or 0,
+        "total_feedback": feedbacks.count(),  # Total feedback count
     }
 
     # Context for rendering
     context = {
-        "requests": requests,
+        "requests": requests, 
         "tutors": tutors,
         "invoices": invoices,
+        "feedbacks": feedbacks,  # Include feedback data
         "analytics": analytics,
     }
     return render(request, "admin_dashboard.html", context)
+
 
 class LoginProhibitedMixin:
     """Mixin that redirects when a user is logged in."""
@@ -249,15 +254,21 @@ class TutorSignUpView(LoginProhibitedMixin, FormView):
     def get_success_url(self):
         return reverse('dashboard')
     
-class FeedbackView(FormView):
-    """View to handle Feedback"""
 
+class FeedbackView(FormView):
     form_class = FeedbackForm
     template_name = "feedback.html"
 
     def form_valid(self, form):
+        feedback = form.save()  # Save the feedback to the database
+        print(f"Saved feedback: {feedback.name}, {feedback.email}, {feedback.message}")
         messages.success(self.request, "Thank you for your feedback")
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('student_dashboard')
+
+
     
 
     

@@ -45,6 +45,9 @@
                 <td>{{ tutor.user.full_name }}</td>
                 <td>{{ tutor.subject }}</td>
                 <td>{{ tutor.availability }}</td>
+                <td>
+                    <a href="{% url 'schedule_lesson' tutor.user.id %}">Schedule</a>
+                </td>
             </tr>
             {% empty %}
             <tr>
@@ -79,10 +82,52 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5">No invoices available.</td>
+                <td colspan="6">No invoices available.</td>
             </tr>
             {% endfor %}
         </table>
+    </section>
+
+    <section>
+        <h2>Feedback Management</h2>
+        <table>
+            <tr>
+                <th>Student Name</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Submitted At</th>
+                <th>Actions</th>
+            </tr>
+            {% for feedback in feedbacks %}
+            <tr>
+                <td>{{ feedback.name }}</td>
+                <td>{{ feedback.email }}</td>
+                <td>{{ feedback.message|truncatewords:15 }}</td>
+                <td>{{ feedback.created_at }}</td>
+                <td>
+                   
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No feedback available.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+
+    <section>
+        <h2>Notifications</h2>
+        <ul>
+            {% for notification in notifications %}
+                <li>
+                    {{ notification.message }} - 
+                    <small>{{ notification.created_at }}</small>
+                </li>
+            {% empty %}
+                <li>No new notifications.</li>
+            {% endfor %}
+        </ul>
     </section>
 
     <section>
@@ -91,6 +136,8 @@
             <li>Total Tutors: {{ analytics.total_tutors }}</li>
             <li>Total Students: {{ analytics.total_students }}</li>
             <li>Total Hours Taught: {{ analytics.hours_taught }}</li>
+            <li>Total Feedback: {{ analytics.total_feedback }}</li>
+            <li>Total Revenue: {{ analytics.total_revenue }}</li>
         </ul>
     </section>
 {% endblock %}

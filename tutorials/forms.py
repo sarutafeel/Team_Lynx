@@ -134,7 +134,6 @@ class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
 
-        user.is_staff = 1
         user.role = 'tutor'
         user.save()
 
