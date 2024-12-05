@@ -74,11 +74,16 @@ def tutor_dashboard(request):
 
     #lesson scheduling
     lessons = LessonSchedule.objects.filter(tutor=request.user).order_by('start_time')
+
+    #tutor requests
+    tutor_requests = TutorRequest.objects.filter(tutor=request.user).order_by('-status')
+
     context = {
+        'tutor_name': tutor_name,
         'lessons': lessons,
+        'tutor_requests': tutor_requests,
     }
-    return render(request, 'tutor_dashboard.html', {
-        'tutor_name': tutor_name,}, context)
+    return render(request, 'tutor_dashboard.html', context)
 
 
 @login_required

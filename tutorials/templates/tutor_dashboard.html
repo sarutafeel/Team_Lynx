@@ -1,77 +1,68 @@
 {% extends 'base_content.html' %}
+
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutor Dashboard</title>
-</head>
-<body>
+<div class="container mt-5">
+    <h1>Welcome to Your Dashboard, {{ tutor_name }}!</h1>
 
+    <!-- Allocated Lessons Section -->
+    <h2>Allocated Lessons</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Subject</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lesson in lessons %}
+            <tr>
+                <td>{{ lesson.student.first_name }} {{ lesson.student.last_name }}</td>
+                <td>{{ lesson.subject }}</td>
+                <td>{{ lesson.start_time }}</td>
+                <td>{{ lesson.end_time }}</td>
+                <td>{{ lesson.status }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No lessons allocated.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <!-- Tutor Dashboard Content -->
-    <section class="dashboard-content">
-        <h1>Welcome to Your Dashboard, {{tutor_name}}!</h1>
-
-        <!-- Allocated Lessons Section -->
-        <section class="lessons-section">
-            <h2>Allocated Lessons</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Lesson Date</th>
-                        <th>Lesson Details</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Sample data rows -->
-                    <tr>
-                        <td>John Doe</td>
-                        <td>2024-12-01 10:00 AM</td>
-                        <td>Math Lesson (Chapter 2)</td>
-                        <td><button>View Details</button></td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>2024-12-02 02:00 PM</td>
-                        <td>Science Lesson</td>
-                        <td><button>View Details</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- Feedback Section -->
-        <section class="feedback-section">
-            <h2>Your Feedback</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Rating</th>
-                        <th>Feedback</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Sample data rows -->
-                    <tr>
-                        <td>John Doe</td>
-                        <td>4</td>
-                        <td>Great lesson, very helpful!</td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>5</td>
-                        <td>Fantastic explanation, thank you!</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-    </section>
-</main>
-</body>
-</html>
+    <!-- Tutor Requests Section -->
+    <h2>Your Requests</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Languages</th>
+                <th>Available Time</th>
+                <th>Additional Details</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in tutor_requests %}
+            <tr>
+                <td>{{ request.languages }}</td>
+                <td>{{ request.available_time }}</td>
+                <td>{{ request.additional_details }}</td>
+                <td>
+                    <span class="badge {% if request.status == 'available' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ request.status }}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No tutor requests available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
+
