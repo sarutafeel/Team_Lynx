@@ -35,6 +35,7 @@
 
     <!-- Tutor Requests Section -->
     <h2>Your Requests</h2>
+    <a href="{% url 'submit_tutor_request' %}" class="btn btn-primary mb-3">Submit Availability</a>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -84,7 +85,6 @@
                 <td>{{ feedback.message }}</td>
                 <td>{{ feedback.lesson.subject }}</td>
                 <td>{{ feedback.posted }}</td>
-        </tr>
             </tr>
             {% empty %}
             <tr>

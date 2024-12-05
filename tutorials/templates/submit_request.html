@@ -1,0 +1,11 @@
+{% extends 'base_content.html' %}
+
+{% block content %}
+<h2>Submit Request</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Submit</button>
+    <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

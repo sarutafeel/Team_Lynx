@@ -43,6 +43,10 @@ urlpatterns = [
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('tutor/dashboard/', views.tutor_dashboard, name='tutor_dashboard'),
     path('submit-feedback/', views.FeedbackView.as_view(), name='submit_feedback'),
+    path('submit_student_request/', views.submit_student_request, name='submit_student_request'),
+    path('submit_tutor_request/', views.submit_tutor_request, name='submit_tutor_request'),
+    path('match_requests/', views.match_requests, name='match_requests'),
+    path('pair_request/<int:student_request_id>/', views.pair_request, name='pair_request'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

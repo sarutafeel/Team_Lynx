@@ -32,7 +32,11 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{% url 'pair_request' request.id 0 %}" class="btn btn-primary btn-sm">Pair</a>
+                                {% if request.status == 'pending' %}
+                                <a href="{% url 'pair_request' request.id %}" class="btn btn-primary">Pair</a>
+                                {% else %}
+                                Paired
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}

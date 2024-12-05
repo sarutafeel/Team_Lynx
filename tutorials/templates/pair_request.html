@@ -1,18 +1,42 @@
 {% extends 'base_content.html' %}
+
 {% block content %}
-<h2>Pair Request</h2>
+<h2>Pair Student Request</h2>
+<h4>Student: {{ student_request.student.get_full_name }}</h4>
+<p>Subject: {{ student_request.subject }}</p>
+<p>Preferred Date: {{ student_request.preferred_date }}</p>
+<p>Preferred Time: {{ student_request.preferred_start_time }} - {{ student_request.preferred_end_time }}</p>
+
+<h3>Available Tutors</h3>
 <form method="post">
     {% csrf_token %}
-    <p>Pairing {{ student_request.student.full_name }} with {{ tutor_request.tutor.full_name }}</p>
-    <label for="start_time">Start Time:</label>
-    <input type="datetime-local" id="start_time" name="start_time" required><br>
-
-    <label for="end_time">End Time:</label>
-    <input type="datetime-local" id="end_time" name="end_time" required><br>
-
-    <label for="location">Location:</label>
-    <input type="text" id="location" name="location" required><br>
-
-    <button type="submit">Pair</button>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tutor Name</th>
+                <th>Languages</th>
+                <th>Available Date</th>
+                <th>Available Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tutor in tutors %}
+            <tr>
+                <td>{{ tutor.tutor.get_full_name }}</td>
+                <td>{{ tutor.languages }}</td>
+                <td>{{ tutor.available_start_date }} - {{ tutor.available_end_date }}</td>
+                <td>{{ tutor.available_start_time }} - {{ tutor.available_end_time }}</td>
+                <td>
+                    <button type="submit" name="tutor_id" value="{{ tutor.id }}" class="btn btn-success">Select</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No available tutors found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </form>
 {% endblock %}
