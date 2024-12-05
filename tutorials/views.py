@@ -88,7 +88,7 @@ def tutor_dashboard(request):
 
 @login_required
 def admin_dashboard(request):
-    if not request.user.is_staff:
+    if request.user.role != 'admin':
         return redirect('dashboard')
 
     # Fetching data
