@@ -128,6 +128,36 @@
             </div>
         </section>
 
+        <section class="mt-5">
+            <h2 class="mb-3">Feedback Management</h2>
+            <div class="table-responsive" style="max-height: 175px; overflow-y: auto; border: 1px solid #ddd;">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-warning">
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Email</th>
+                            <th>Message (Preview)</th>
+                            <th>Submitted At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for feedback in feedbacks %}
+                        <tr>
+                            <td>{{ feedback.name }}</td>
+                            <td>{{ feedback.email }}</td>
+                            <td>{{ feedback.message|truncatewords:10 }}</td>
+                            <td>{{ feedback.posted|date:"Y-m-d H:i:s" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No feedback available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
     </div>
 
     <section>
@@ -156,34 +186,6 @@
             {% empty %}
             <tr>
                 <td colspan="6">No invoices available.</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </section>
-
-    <section>
-        <h2>Feedback Management</h2>
-        <table>
-            <tr>
-                <th>Student Name</th>
-                <th>Email</th>
-                <th>Message</th>
-                <th>Submitted At</th>
-                <th>Actions</th>
-            </tr>
-            {% for feedback in feedbacks %}
-            <tr>
-                <td>{{ feedback.name }}</td>
-                <td>{{ feedback.email }}</td>
-                <td>{{ feedback.message|truncatewords:15 }}</td>
-                <td>{{ feedback.created_at }}</td>
-                <td>
-                   
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No feedback available.</td>
             </tr>
             {% endfor %}
         </table>
