@@ -319,7 +319,7 @@ def admin_request_list(request):
         return redirect('dashboard')
 
     student_requests = StudentRequest.objects.filter(status='pending').order_by('created_at')
-    tutor_requests = TutorRequest.objects.all()  # Show all tutor requests
+    tutor_requests = TutorRequest.objects.all()  # show all tutor requests
 
     return render(request, 'request_list.html', {
         'student_requests': student_requests,
@@ -332,24 +332,37 @@ def pair_request(request, student_request_id, tutor_request_id):
         return redirect('dashboard')
 
     student_request = get_object_or_404(StudentRequest, id=student_request_id)
-    #tutor_request = TutorRequest.objects.filter(status='available', languages__icontains=student_request.subject)
-    tutor_requests = TutorRequest.objects.all()
+    tutor_requests = TutorRequest.objects.filter(
+        status='available',
+        day_of_week=student_request.day_of_week,
+        languages__icontains=student_request.language, 
+        level_can_teach=student_request.difficulty
+    )
     tutor_request = None
     if request.method == 'POST':
         tutor_request_id = request.POST.get('tutor_request_id')
         start_time = request.POST.get('start_time')
-        end_time = request.POST.get('end_time')
+        duration = request.POST.get('duration') # as string
+        day_of_week = student_request.day_of_week
+        frequency = student_request.frequency
 
-        if tutor_request_id and start_time and end_time:
+        if tutor_request_id and start_time and duration:
+            try:
+                duration = int(duration)
+            except ValueError:
+                messages.error(request, "Duration must be an integer.")
+                return redirect('pair_request', student_request_id=student_request_id)
+
             tutor_request = get_object_or_404(TutorRequest, id=tutor_request_id)
 
             # create lesson schedule after pairing
             LessonSchedule.objects.create(
                 tutor=tutor_request.tutor,
                 student=student_request.student,
-                subject=student_request.subject,
+                subject=student_request.language,
+                day_of_week=day_of_week,
                 start_time=request.POST.get('start_time'),
-                end_time=request.POST.get('end_time'),
+                duration=duration,
                 frequency=student_request.frequency,
                 status='scheduled'
             )
@@ -357,7 +370,7 @@ def pair_request(request, student_request_id, tutor_request_id):
             student_request.save()
 
             messages.success(request, "Student and tutor paired successfully!")
-            return redirect('admin_request_list')
+            return redirect('admin_dashboard')
         else:
             messages.error(request, "Please fill all fields.")
     
