@@ -19,10 +19,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from tutorials import views
-from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard
+from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, create_invoice
+
 
 
 urlpatterns = [
+    path("admin/create_invoice/", create_invoice, name="create_invoice"),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Custom admin dashboard
     path('admin/', admin.site.urls),  # Built-in Django admin
     path('', views.home, name='home'),
