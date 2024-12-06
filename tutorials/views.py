@@ -344,35 +344,6 @@ def admin_request_list(request):
         'tutor_requests': tutor_requests,
     })
 
-@login_required
-def pair_request(request, student_request_id, tutor_request_id):
-    if not request.user.role == 'admin':
-        return redirect('dashboard')
-
-    student_request = get_object_or_404(StudentRequest, id=student_request_id)
-    tutor_request = get_object_or_404(TutorRequest, id=tutor_request_id)
-
-    if request.method == 'POST':
-        # create lesson schedule after pairing
-        LessonSchedule.objects.create(
-            tutor=tutor_request.tutor,
-            student=student_request.student,
-            subject=student_request.subject,
-            start_time=request.POST.get('start_time'),
-            end_time=request.POST.get('end_time'),
-            frequency=student_request.frequency,
-            status='scheduled'
-        )
-        student_request.status = 'approved'
-        student_request.save()
-
-        messages.success(request, "Student and tutor paired successfully!")
-        return redirect('admin_request_list')
-
-    return render(request, 'pair_request.html', {
-        'student_request': student_request,
-        'tutor_request': tutor_request,
-    }) 
 
      
 @login_required

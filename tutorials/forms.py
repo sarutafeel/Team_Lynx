@@ -153,31 +153,5 @@ class FeedbackForm(forms.ModelForm):
         return feedback
 
 
-class LessonScheduleForm(forms.ModelForm):
-    class Meta:
-        model = LessonSchedule
-        fields = ['tutor', 'student', 'subject', 'start_time', 'end_time', 'frequency', 'status']
 
 
-
-class StudentRequestForm(forms.ModelForm):
-    class Meta:
-        model = StudentRequest
-        fields = ['subject', 'frequency', 'preferred_date', 'preferred_start_time', 'preferred_end_time', 'additional_details']
-        widgets = {
-            'preferred_date': forms.DateInput(attrs={'type': 'date'}),
-            'preferred_start_time': forms.TimeInput(attrs={'type': 'time'}),
-            'preferred_end_time': forms.TimeInput(attrs={'type': 'time'}),
-        }
-
-
-class TutorRequestForm(forms.ModelForm):
-    class Meta:
-        model = TutorRequest
-        fields = ['languages', 'available_start_date', 'available_start_time', 'available_end_date', 'available_end_time', 'additional_details']
-        widgets = {
-            'available_start_date': forms.DateInput(attrs={'type': 'date'}),
-            'available_start_time': forms.TimeInput(attrs={'type': 'time'}),
-            'available_end_date': forms.DateInput(attrs={'type': 'date'}),
-            'available_end_time': forms.TimeInput(attrs={'type': 'time'}),
-        }
