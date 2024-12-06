@@ -17,6 +17,36 @@ from django.db import models
 from django.db.models import Sum
 
 from .forms import LessonScheduleForm
+from django.http import HttpResponseRedirect
+
+
+@login_required
+def create_invoice(request):
+    if request.method == "POST":
+        student_id = request.POST.get("student")
+        tutor_id = request.POST.get("tutor")
+        amount = request.POST.get("amount")
+        due_date = request.POST.get("due_date")
+
+        # Fetch student and tutor objects
+        student = get_object_or_404(Student, id=student_id)
+        tutor = get_object_or_404(Tutor, id=tutor_id)
+
+        # Create the invoice
+        Invoice.objects.create(
+            student=student,  # Reference the Student model instance directly
+            tutor=tutor,
+            amount=amount,
+            due_date=due_date
+        )
+
+        messages.success(request, "Invoice created successfully!")
+        return redirect('admin_dashboard')
+
+    students = Student.objects.all()  # Ensure all students are fetched
+    tutors = Tutor.objects.all()
+    return render(request, "create_invoice.html", {"students": students, "tutors": tutors})
+
 
 @login_required
 def mark_paid(request, invoice_id):
@@ -61,6 +91,17 @@ def dashboard(request):
 
 @login_required
 def student_dashboard(request):
+    """Display the student's dashboard with invoices."""
+    try:
+        student = request.user.student_profile  # Access the related Student instance
+    except Student.DoesNotExist:
+        messages.error(request, "You are not registered as a student.")
+        return redirect("home")  # Redirect to a fallback page if not a student
+
+    invoices = Invoice.objects.filter(student=student)
+    return render(request, "student_dashboard.html", {"invoices": invoices})
+
+
     # lesson scheduling
     lessons = LessonSchedule.objects.filter(student=request.user).order_by('start_time')
     context = {
@@ -85,23 +126,22 @@ def tutor_dashboard(request):
     }
     return render(request, 'tutor_dashboard.html', context)
 
-
-@login_required
 @login_required
 def admin_dashboard(request):
     if not request.user.is_staff:
         return redirect('dashboard')
 
-    # Fetching data
-    requests = Request.objects.select_related('student')  # Fetch related User via 'student'
-    tutors = Tutor.objects.select_related('user')  # Fetch related User via 'user'
-    invoices = Invoice.objects.select_related('student', 'tutor__user')  # Fetch related User for student and tutor
+    # Fetch data
+    requests = Request.objects.select_related('student')
+    tutors = Tutor.objects.select_related('user')
+    invoices = Invoice.objects.select_related('student', 'tutor__user')
+    students = Student.objects.select_related('user')
     feedbacks = Feedback.objects.all().order_by('-posted')  # Fetch all feedback, ordered by newest first
 
     # Analytics
     analytics = {
         "total_tutors": tutors.count(),
-        "total_students": Student.objects.count(),
+        "total_students": students.count(),
         "hours_taught": tutors.aggregate(total_hours=Sum('hours_taught'))['total_hours'] or 0,
         "total_feedback": feedbacks.count(),  # Total feedback count
     }
@@ -112,10 +152,11 @@ def admin_dashboard(request):
     # lesson scheduling
     lessons = LessonSchedule.objects.all().order_by('start_time')  
 
-    # Context for rendering
+    # Context
     context = {
         "requests": requests, 
         "tutors": tutors,
+        "students": students,  # Pass students queryset
         "invoices": invoices,
         "feedbacks": feedbacks,  # Include feedback data
         "analytics": analytics,

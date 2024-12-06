@@ -22,3 +22,29 @@
     </div>
 </div>
 {% endblock %}
+{% extends 'base_content.html' %}
+{% block content %}
+    <section>
+        <h2>Your Invoices</h2>
+        <table>
+            <tr>
+                <th>Tutor</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Due Date</th>
+            </tr>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.tutor.user.full_name }}</td>
+                <td>{{ invoice.amount }}</td>
+                <td>{{ invoice.status }}</td>
+                <td>{{ invoice.due_date }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">You have no invoices.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+{% endblock %}
