@@ -332,28 +332,39 @@ def pair_request(request, student_request_id, tutor_request_id):
         return redirect('dashboard')
 
     student_request = get_object_or_404(StudentRequest, id=student_request_id)
-    tutor_request = get_object_or_404(TutorRequest, id=tutor_request_id)
-
+    #tutor_request = TutorRequest.objects.filter(status='available', languages__icontains=student_request.subject)
+    tutor_requests = TutorRequest.objects.all()
+    tutor_request = None
     if request.method == 'POST':
-        # create lesson schedule after pairing
-        LessonSchedule.objects.create(
-            tutor=tutor_request.tutor,
-            student=student_request.student,
-            subject=student_request.subject,
-            start_time=request.POST.get('start_time'),
-            end_time=request.POST.get('end_time'),
-            frequency=student_request.frequency,
-            status='scheduled'
-        )
-        student_request.status = 'approved'
-        student_request.save()
+        tutor_request_id = request.POST.get('tutor_request_id')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
 
-        messages.success(request, "Student and tutor paired successfully!")
-        return redirect('admin_request_list')
+        if tutor_request_id and start_time and end_time:
+            tutor_request = get_object_or_404(TutorRequest, id=tutor_request_id)
+
+            # create lesson schedule after pairing
+            LessonSchedule.objects.create(
+                tutor=tutor_request.tutor,
+                student=student_request.student,
+                subject=student_request.subject,
+                start_time=request.POST.get('start_time'),
+                end_time=request.POST.get('end_time'),
+                frequency=student_request.frequency,
+                status='scheduled'
+            )
+            student_request.status = 'approved'
+            student_request.save()
+
+            messages.success(request, "Student and tutor paired successfully!")
+            return redirect('admin_request_list')
+        else:
+            messages.error(request, "Please fill all fields.")
+    
 
     return render(request, 'pair_request.html', {
         'student_request': student_request,
-        'tutor_request': tutor_request,
+        'tutor_requests': tutor_requests,
     }) 
 
      

@@ -1,18 +1,32 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<h2>Pair Request</h2>
+<h2>Pairing Request for {{ student_request.student.first_name }} {{ student_request.student.last_name }}</h2>
+<p><strong>Subject:</strong> {{ student_request.subject }}</p>
+<p><strong>Frequency:</strong> {{ student_request.frequency }}</p>
+<p><strong>Preferred Time (Student):</strong> {{ student_request.preferred_time }}</p>
+
 <form method="post">
     {% csrf_token %}
-    <p>Pairing {{ student_request.student.full_name }} with {{ tutor_request.tutor.full_name }}</p>
-    <label for="start_time">Start Time:</label>
-    <input type="datetime-local" id="start_time" name="start_time" required><br>
 
-    <label for="end_time">End Time:</label>
-    <input type="datetime-local" id="end_time" name="end_time" required><br>
+    <div class="mb-3">
+        <label for="tutor">Select a Tutor:</label>
+        <select name="tutor_request_id" id="tutor" class="form-control">
+            {% for t_req in tutor_requests %}
+            <option value="{{ t_req.id }}">{{ t_req.tutor.first_name }} {{ t_req.tutor.last_name }} - {{ t_req.languages }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-    <label for="location">Location:</label>
-    <input type="text" id="location" name="location" required><br>
+    <div class="mb-3">
+        <label for="start_time">Start Time:</label>
+        <input type="datetime-local" name="start_time" id="start_time" class="form-control">
+    </div>
 
-    <button type="submit">Pair</button>
+    <div class="mb-3">
+        <label for="end_time">End Time:</label>
+        <input type="datetime-local" name="end_time" id="end_time" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-success">Pair</button>
 </form>
 {% endblock %}
