@@ -6,19 +6,93 @@
         <div class="col-md-8 offset-md-2">
             <h1>Welcome to Your Dashboard, {{ user.username }}!</h1>
 
-            <p>Here, you can view your information, progress, and submit feedback about the course.</p>
+            <p>Here, you can view your requests, scheduled lessons, and progress.</p>
+
+            <!-- Request Button -->
+            <div class="mt-4">
+                <a href="{% url 'submit_student_request' %}" class="btn btn-primary">Submit a Request</a>
+            </div>
+
+            <!-- Display Student Requests -->
+            <div class="mt-5">
+                <h3>Your Requests</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Language</th>
+                            <th>Frequency</th>
+                            <th>Day</th>
+                            <th>Preferred Time</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in student_requests %}
+                        <tr>
+                            <td>{{ request.language }}</td>
+                            <td>{{ request.frequency }}</td>
+                            <td>{{ request.day_of_week }}</td>
+                            <td>{{ request.preferred_time }}</td>
+                            <td>
+                                <span class="badge {% if request.status == 'Pending' %}bg-warning{% elif request.status == 'Approved' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ request.status }}
+                                </span>
+                            </td>
+                            <td>{{ request.additional_details }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No requests submitted.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Display Scheduled Lessons -->
+            <div class="mt-5">
+                <h3>Your Scheduled Lessons</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Day</th>
+                            <th>Start Time</th>
+                            <th>Duration</th>
+                            <th>Tutor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lesson in lessons %}
+                        <tr>
+                            <td>{{ lesson.subject }}</td>
+                            <td>{{ lesson.day_of_week }}</td>
+                            <td>{{ lesson.start_time }}</td>
+                            <td>{{ lesson.duration }} mins</td>
+                            <td>{{ lesson.tutor.first_name }} {{ lesson.tutor.last_name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No lessons scheduled.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Feedback Button -->
-            <a href="{% url 'submit_feedback' %}" class="btn btn-primary">Give Feedback</a>
+            <div class="mt-4">
+                <a href="{% url 'submit_feedback' %}" class="btn btn-primary">Give Feedback</a>
+            </div>
 
-            <!-- Add other dashboard content below, such as progress, assignments, etc. -->
+            <!-- Placeholder for Student Progress -->
             <div class="mt-4">
                 <h3>Your Progress</h3>
                 <p>Placeholder for student progress details.</p>
-                <!-- More student-specific information here -->
             </div>
-
         </div>
     </div>
 </div>
 {% endblock %}
+

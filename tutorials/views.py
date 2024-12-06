@@ -16,7 +16,7 @@ from .models import Request, Tutor, Invoice, Student, LessonSchedule, StudentReq
 from django.db import models
 from django.db.models import Sum
 
-from .forms import LessonScheduleForm
+from .forms import LessonScheduleForm, StudentRequestForm, TutorRequestForm
 
 @login_required
 def mark_paid(request, invoice_id):
@@ -61,12 +61,30 @@ def dashboard(request):
 
 @login_required
 def student_dashboard(request):
+    student = request.user
+
+    #query student requests
+    student_requests = StudentRequest.objects.filter(student=student).order_by('-created_at')
+
+    if request.method == "POST":
+        form = StudentRequestForm(request.POST)
+        if form.is_valid():
+            student_request = form.save(commit=False)
+            student_request.student = student  # 关联当前登录学生
+            student_request.status = 'Pending'  # 确保状态为 Pending
+            student_request.save()
+            messages.success(request, "Your request has been submitted successfully!")
+            return redirect('student_dashboard')
+    else:
+        form = StudentRequestForm()
+
     # lesson scheduling
     lessons = LessonSchedule.objects.filter(student=request.user).order_by('start_time')
-    context = {
-        'lessons': lessons,
-    }
-    return render(request, 'student_dashboard.html', context)
+    return render(request, 'student_dashboard.html', {
+        'student_requests': student_requests,
+        'student_request_form': form,
+        'lessons': lessons
+    })
 
 @login_required
 def tutor_dashboard(request):
@@ -78,15 +96,13 @@ def tutor_dashboard(request):
     #tutor requests
     tutor_requests = TutorRequest.objects.filter(tutor=request.user).order_by('-status')
 
-    context = {
+    return render(request, 'tutor_dashboard.html', {
         'tutor_name': tutor_name,
         'lessons': lessons,
-        'tutor_requests': tutor_requests,
-    }
-    return render(request, 'tutor_dashboard.html', context)
+        'tutor_requests': tutor_requests,  
+    })
 
 
-@login_required
 @login_required
 def admin_dashboard(request):
     if request.user.role != 'admin':
@@ -107,7 +123,7 @@ def admin_dashboard(request):
         "total_feedback": feedbacks.count(),  # Total feedback count
     }
 
-    student_requests = StudentRequest.objects.filter(status='pending').order_by('created_at')
+    student_requests = StudentRequest.objects.all().order_by('status', '-created_at')
     tutor_requests = TutorRequest.objects.all()  
 
     # lesson scheduling
@@ -380,4 +396,31 @@ def pair_request(request, student_request_id, tutor_request_id):
         'tutor_requests': tutor_requests,
     }) 
 
-     
+@login_required
+def submit_student_request(request):
+    if request.method == "POST":
+        form = StudentRequestForm(request.POST)
+        if form.is_valid():
+            student_request = form.save(commit=False)
+            student_request.student = request.user
+            student_request.status = 'Pending'
+            student_request.save()
+            messages.success(request, "Your request has been submitted!")
+            return redirect('student_dashboard')
+    else:
+        form = StudentRequestForm()
+    return render(request, 'submit_student_request.html', {'student_request_form': form})
+
+@login_required
+def submit_tutor_request(request):
+    if request.method == "POST":
+        form = TutorRequestForm(request.POST)
+        if form.is_valid():
+            tutor_request = form.save(commit=False)
+            tutor_request.tutor = request.user
+            tutor_request.save()
+            messages.success(request, "Your availability has been submitted!")
+            return redirect('tutor_dashboard')
+    else:
+        form = TutorRequestForm()
+    return render(request, 'submit_tutor_request.html', {'tutor_request_form': form})

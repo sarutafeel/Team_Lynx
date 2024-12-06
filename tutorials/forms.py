@@ -161,7 +161,6 @@ class StudentRequestForm(forms.ModelForm):
             'preferred_time',
             'additional_details',
             'difficulty',     
-            'status'
         ]
         widgets = {
             'preferred_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),

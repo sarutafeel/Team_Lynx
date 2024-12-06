@@ -20,7 +20,7 @@ from django.contrib import admin
 from django.urls import path
 from tutorials import views
 from django.views.generic import TemplateView
-from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, FeedbackView
+from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, FeedbackView, submit_student_request,submit_tutor_request
 
 
 urlpatterns = [
@@ -43,6 +43,8 @@ urlpatterns = [
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('tutor/dashboard/', views.tutor_dashboard, name='tutor_dashboard'),
     path('submit-feedback/', views.FeedbackView.as_view(), name='submit_feedback'),
+    path('student/request/', submit_student_request, name='submit_student_request'),
+    path('tutor/request/', submit_tutor_request, name='submit_tutor_request'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
