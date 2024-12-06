@@ -1,37 +1,114 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<h2>Pairing Request for {{ student_request.student.first_name }} {{ student_request.student.last_name }}</h2>
-<p><strong>Subject:</strong> {{ student_request.subject }}</p>
-<p><strong>Frequency:</strong> {{ student_request.frequency }}</p>
-<p><strong>Preferred Time (Student):</strong> {{ student_request.preferred_time }}</p>
-
-<form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label for="tutor_request_id">Select a Tutor:</label>
-        <select name="tutor_request_id" id="tutor_request_id" class="form-control">
-            {% for t_req in tutor_requests %}
-            <option value="{{ t_req.id }}">
-                {{ t_req.tutor.first_name }} {{ t_req.tutor.last_name }} - {{ t_req.languages }} ({{ t_req.level_can_teach }})
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-        </select>
-    </div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Pairing Student and Tutor</h3>
+                </div>
+                
+                <div class="card-body">
     
+                    <h5 class="mb-3">Student Request Details</h5>
+                    <p><strong>Name:</strong> {{ student_request.student.first_name }} {{ student_request.student.last_name }}</p>
+                    <p><strong>Subject:</strong> {{ student_request.language }}</p>
+                    <p><strong>Frequency:</strong> {{ student_request.frequency }}</p>
+                    <p><strong>Preferred Time (Student):</strong> {{ student_request.preferred_time }}</p>
 
-    <div class="mb-3">
-        <label for="start_time">Start Time (HH:MM):</label>
-        <input type="time" name="start_time" id="start_time" class="form-control">
+                    <hr>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        
+                        <!-- tutor selection -->
+                        <div class="mb-3">
+                            <label for="tutor_request_id" class="form-label">Select a Tutor</label>
+                            <select name="tutor_request_id" id="tutor_request_id" class="form-select">
+                                {% for t_req in tutor_requests %}
+                                <option value="{{ t_req.id }}">
+                                    {{ t_req.tutor.first_name }} {{ t_req.tutor.last_name }} 
+                                    - {{ t_req.languages }} ({{ t_req.level_can_teach }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- start time only have the :00 and :30  -->
+                        <div class="mb-3">
+                            <label for="start_time" class="form-label">Start Time (HH:MM)</label>
+                            <select type="time" name="start_time" id="start_time" class="form-select">
+                                <option value="00:00">00:00</option>
+                                <option value="00:30">00:30</option>
+                                <option value="01:00">01:00</option>
+                                <option value="01:30">01:30</option>
+                                <option value="02:00">02:00</option>
+                                <option value="02:30">02:30</option>
+                                <option value="03:00">03:00</option>
+                                <option value="03:30">03:30</option>
+                                <option value="04:00">04:00</option>
+                                <option value="04:30">04:30</option>
+                                <option value="05:00">05:00</option>
+                                <option value="05:30">05:30</option>
+                                <option value="06:00">06:00</option>
+                                <option value="06:30">06:30</option>
+                                <option value="07:00">07:00</option>
+                                <option value="07:30">07:30</option>
+                                <option value="08:00">08:00</option>
+                                <option value="08:30">08:30</option>
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                                <option value="12:00">12:00</option>
+                                <option value="12:30">12:30</option>
+                                <option value="13:00">13:00</option>
+                                <option value="13:30">13:30</option>
+                                <option value="14:00">14:00</option>
+                                <option value="14:30">14:30</option>
+                                <option value="15:00">15:00</option>
+                                <option value="15:30">15:30</option>
+                                <option value="16:00">16:00</option>
+                                <option value="16:30">16:30</option>
+                                <option value="17:00">17:00</option>
+                                <option value="17:30">17:30</option>
+                                <option value="18:00">18:00</option>
+                                <option value="18:30">18:30</option>
+                                <option value="19:00">19:00</option>
+                                <option value="19:30">19:30</option>
+                                <option value="20:00">20:00</option>
+                                <option value="20:30">20:30</option>
+                                <option value="21:00">21:00</option>
+                                <option value="21:30">21:30</option>
+                                <option value="22:00">22:00</option>
+                                <option value="22:30">22:30</option>
+                                <option value="23:00">23:00</option>
+                                <option value="23:30">23:30</option>
+                            </select>
+                        </div>
+                        
+                        <!-- duration -->
+                        <div class="mb-3">
+                            <label for="duration" class="form-label">Duration (in minutes)</label>
+                            <select name="duration" id="duration" class="form-select">
+                                <option value="30">30 minutes</option>
+                                <option value="60">60 minutes</option>
+                                <option value="90">90 minutes</option>
+                                <option value="120">120 minutes</option>
+                            </select>
+                        </div>
+                        
+                        <!-- submit button -->
+                        <button type="submit" class="btn btn-success w-100">Pair</button>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label for="duration">Duration (in minutes):</label>
-        <input type="number" name="duration" id="duration" class="form-control" placeholder="e.g. 60 for 1 hour">
-    </div>
-
-    <button type="submit" class="btn btn-success">Pair</button>
-</form>
-
+</div>
 {% endblock %}
