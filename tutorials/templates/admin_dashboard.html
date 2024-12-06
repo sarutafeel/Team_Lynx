@@ -10,9 +10,11 @@
                     <thead class="table-primary">
                         <tr>
                             <th>Student Name</th>
-                            <th>Subject</th>
+                            <th>Language</th>
                             <th>Frequency</th>
-                            <th>Preferred Time</th>
+                            <th>Level of Difficulty</th>
+                            <th>Day</th>
+                            <th>Time</th>
                             <th>Details</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -22,8 +24,10 @@
                         {% for request in student_requests %}
                         <tr>
                             <td>{{ request.student.first_name }} {{ request.student.last_name }}</td>
-                            <td>{{ request.subject }}</td>
+                            <td>{{ request.language }}</td>
                             <td>{{ request.frequency }}</td>
+                            <td>{{ request.difficulty}}</td>
+                            <td>{{ request.day_of_week}}</td>
                             <td>{{ request.preferred_time }}</td>
                             <td>{{ request.additional_details }}</td>
                             <td>
@@ -54,6 +58,8 @@
                         <tr>
                             <th>Tutor Name</th>
                             <th>Languages</th>
+                            <th>Level of Difficulty</th>
+                            <th>Day</th>
                             <th>Available Time</th>
                             <th>Details</th>
                             <th>Status</th>
@@ -64,6 +70,8 @@
                         <tr>
                             <td>{{ request.tutor.first_name }} {{ request.tutor.last_name }}</td>
                             <td>{{ request.languages }}</td>
+                            <td>{{ request.difficulty}}</td>
+                            <td>{{ request.day_of_week}}</td>
                             <td>{{ request.available_time }}</td>
                             <td>{{ request.additional_details }}</td>
                             <td>
@@ -92,8 +100,9 @@
                             <th>Tutor Name</th>
                             <th>Student Name</th>
                             <th>Subject</th>
+                            <th>Day</th>
                             <th>Start Time</th>
-                            <th>End Time</th>
+                            <th>Duration (min)</th>
                             <th>Frequency</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -105,8 +114,9 @@
                             <td>{{ lesson.tutor.first_name }} {{ lesson.tutor.last_name }}</td>
                             <td>{{ lesson.student.first_name }} {{ lesson.student.last_name }}</td>
                             <td>{{ lesson.subject }}</td>
+                            <td>{{ lesson.day_of_week }}</td>
                             <td>{{ lesson.start_time }}</td>
-                            <td>{{ lesson.end_time }}</td>
+                            <td>{{ lesson.duration }}</td>
                             <td>{{ lesson.frequency }}</td>
                             <td>
                                 <span class="badge {% if lesson.status == 'scheduled' %}bg-success{% else %}bg-warning{% endif %}">
@@ -214,3 +224,4 @@
         </ul>
     </section>
 {% endblock %}
+
