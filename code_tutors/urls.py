@@ -20,8 +20,7 @@ from django.contrib import admin
 from django.urls import path
 from tutorials import views
 from django.views.generic import TemplateView
-from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, create_invoice
-, FeedbackView
+from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, create_invoice, FeedbackView
 
 
 urlpatterns = [

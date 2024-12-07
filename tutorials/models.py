@@ -173,6 +173,7 @@ class User(AbstractUser):
 
         ordering = ['last_name', 'first_name']
 
+    @property
     def full_name(self):
         """Return a string containing the user's full name."""
 

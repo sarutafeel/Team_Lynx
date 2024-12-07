@@ -146,11 +146,7 @@ def admin_dashboard(request):
         "total_feedback": feedbacks.count(),  # Total feedback count
     }
 
-    student_requests = StudentRequest.objects.filter(status='pending').order_by('created_at')
-    tutor_requests = TutorRequest.objects.all()  
-
-    # lesson scheduling
-    lessons = LessonSchedule.objects.all().order_by('start_time')  
+    
 
     # Context
     context = {
@@ -160,9 +156,6 @@ def admin_dashboard(request):
         "invoices": invoices,
         "feedbacks": feedbacks,  # Include feedback data
         "analytics": analytics,
-        'student_requests': student_requests,
-        'tutor_requests': tutor_requests,
-        'lessons': lessons,  
     }
 
     return render(request, "admin_dashboard.html", context )
@@ -352,6 +345,9 @@ class FeedbackView(FormView):
         print(f"Saved feedback: {feedback.name}, {feedback.email}, {feedback.message}")
         messages.success(self.request, "Thank you for your feedback")
         return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('dashboard')
     
 @login_required
 def admin_request_list(request):

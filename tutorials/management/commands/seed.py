@@ -4,7 +4,7 @@ import pytz
 from faker import Faker
 
 user_fixtures = [
-    {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe', 'role': 'admin'},
+    {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe', 'role': 'admin', 'is_staff': True, 'is_superuser': True},
     {'username': '@janedoe', 'email': 'jane.doe@example.org', 'first_name': 'Jane', 'last_name': 'Doe', 'role': 'tutor'},
     {'username': '@charlie', 'email': 'charlie.johnson@example.org', 'first_name': 'Charlie', 'last_name': 'Johnson', 'role': 'student'},
 ]
@@ -24,6 +24,7 @@ class Command(BaseCommand):
         print("Seeding complete!")
 
     def create_user(self, data):
+        # Create the user
         user = User.objects.create_user(
             username=data['username'],
             email=data['email'],
@@ -35,6 +36,23 @@ class Command(BaseCommand):
         user.is_staff = data.get('is_staff', False)
         user.is_superuser = data.get('is_superuser', False)
         user.save()
+
+        if data['role'] == 'tutor':
+            from tutorials.models import Tutor
+            Tutor.objects.get_or_create(
+                user=user,
+                defaults={
+                    'subject': 'Default Subject',
+                    'hourly_rate': 30.0,
+                    'availability': 'Flexible',
+                    'hours_taught': 0,
+                }
+            )
+        elif data['role'] == 'student':
+            from tutorials.models import Student
+            Student.objects.get_or_create(user=user)
+
+        return user
 
     def generate_user_fixtures(self):
         for data in user_fixtures:
