@@ -15,8 +15,35 @@ from tutorials.forms import TutorSignUpForm
 from .models import Request, Tutor, Invoice, Student, LessonSchedule, StudentRequest, TutorRequest, Feedback
 from django.db import models
 from django.db.models import Sum
-
+from django.http import HttpResponseRedirect
 from .forms import LessonScheduleForm, StudentRequestForm, TutorRequestForm
+
+@login_required
+def create_invoice(request):
+    if request.method == "POST":
+        student_id = request.POST.get("student")
+        tutor_id = request.POST.get("tutor")
+        amount = request.POST.get("amount")
+        due_date = request.POST.get("due_date")
+
+        # Fetch student and tutor objects
+        student = get_object_or_404(Student, id=student_id)
+        tutor = get_object_or_404(Tutor, id=tutor_id)
+
+        # Create the invoice
+        Invoice.objects.create(
+            student=student,  # Reference the Student model instance directly
+            tutor=tutor,
+            amount=amount,
+            due_date=due_date
+        )
+
+        messages.success(request, "Invoice created successfully!")
+        return redirect('admin_dashboard')
+
+    students = Student.objects.all()  # Ensure all students are fetched
+    tutors = Tutor.objects.all()
+    return render(request, "create_invoice.html", {"students": students, "tutors": tutors})
 
 @login_required
 def mark_paid(request, invoice_id):
@@ -80,28 +107,22 @@ def student_dashboard(request):
 
     # lesson scheduling
     lessons = LessonSchedule.objects.filter(student=request.user).order_by('start_time')
+    
+    
+    invoices = Invoice.objects.filter(student=student)
+
     return render(request, 'student_dashboard.html', {
         'student_requests': student_requests,
         'student_request_form': form,
-        'lessons': lessons
+        'lessons': lessons,
+        "invoices": invoices
     })
+
+
 
 @login_required
 def tutor_dashboard(request):
-    tutor_name = request.user.get_full_name() 
-
-    #lesson scheduling
-    lessons = LessonSchedule.objects.filter(tutor=request.user).order_by('start_time')
-
-    #tutor requests
-    tutor_requests = TutorRequest.objects.filter(tutor=request.user).order_by('-status')
-
-    return render(request, 'tutor_dashboard.html', {
-        'tutor_name': tutor_name,
-        'lessons': lessons,
-        'tutor_requests': tutor_requests,  
-    })
-
+    return render(request, 'tutor_dashboard.html')
 
 @login_required
 def admin_dashboard(request):
@@ -109,30 +130,26 @@ def admin_dashboard(request):
         return redirect('dashboard')
 
 
-    # Fetching data
-    requests = Request.objects.select_related('student')  # Fetch related User via 'student'
-    tutors = Tutor.objects.select_related('user')  # Fetch related User via 'user'
-    invoices = Invoice.objects.select_related('student', 'tutor__user')  # Fetch related User for student and tutor
+    # Fetch data
+    requests = Request.objects.select_related('student')
+    tutors = Tutor.objects.select_related('user')
+    invoices = Invoice.objects.select_related('student', 'tutor__user')
+    students = Student.objects.select_related('user')
     feedbacks = Feedback.objects.all().order_by('-posted')  # Fetch all feedback, ordered by newest first
 
     # Analytics
     analytics = {
         "total_tutors": tutors.count(),
-        "total_students": Student.objects.count(),
+        "total_students": students.count(),
         "hours_taught": tutors.aggregate(total_hours=Sum('hours_taught'))['total_hours'] or 0,
-        "total_feedback": feedbacks.count(),  # Total feedback count
+        "total_feedback": feedbacks.count(),
     }
 
-    student_requests = StudentRequest.objects.all().order_by('status', '-created_at')
-    tutor_requests = TutorRequest.objects.all()  
-
-    # lesson scheduling
-    lessons = LessonSchedule.objects.all().order_by('start_time')  
-
-    # Context for rendering
+    # Context
     context = {
         "requests": requests, 
         "tutors": tutors,
+        "students": students,  # Pass students queryset
         "invoices": invoices,
         "feedbacks": feedbacks,  # Include feedback data
         "analytics": analytics,
