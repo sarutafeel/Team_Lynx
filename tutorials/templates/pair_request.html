@@ -1,0 +1,60 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            
+            <!-- Card to frame the content -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Pairing Student and Tutor</h3>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Display student request details inside the card -->
+                    <h5 class="mb-3">Student Request Details</h5>
+                    
+                    <p><strong>Subject:</strong> {{ student_request.subject }}</p>
+                    <p><strong>Frequency:</strong> {{ student_request.frequency }}</p>
+                    <p><strong>Preferred Time (Student):</strong> {{ student_request.preferred_time }}</p>
+                    
+                    <hr>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        
+                        <!-- Tutor selection -->
+                        <div class="mb-3">
+                            <label for="tutor_request_id" class="form-label">Select a Tutor</label>
+                            <select name="tutor_request_id" id="tutor_request_id" class="form-select">
+                                {% for t_req in tutor_requests %}
+                                <option value="{{ t_req.id }}">
+                                    {{ t_req.tutor.first_name }} {{ t_req.tutor.last_name }} 
+                                    - {{ t_req.languages }} ({{ t_req.level_can_teach }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Start time -->
+                        <div class="mb-3">
+                            <label for="start_time" class="form-label">Start Time (HH:MM)</label>
+                            <input type="time" name="start_time" id="start_time" class="form-control">
+                        </div>
+                        
+                        <!-- Duration -->
+                        <div class="mb-3">
+                            <label for="duration" class="form-label">Duration (in minutes)</label>
+                            <input type="number" name="duration" id="duration" class="form-control" placeholder="e.g. 60 for 1 hour">
+                        </div>
+                        
+                        <!-- Submit button -->
+                        <button type="submit" class="btn btn-success w-100">Pair</button>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

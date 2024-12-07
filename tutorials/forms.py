@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User
+from .models import User, Feedback, LessonSchedule, StudentRequest, TutorRequest
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -113,3 +113,69 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
         return user
+
+
+class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
+
+     class Meta:
+        """Form options."""
+
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email']
+     
+     def save(self):
+        """Create a new user."""
+
+        super().save(commit=False)
+        user = User.objects.create_user(
+            self.cleaned_data.get('username'),
+            first_name=self.cleaned_data.get('first_name'),
+            last_name=self.cleaned_data.get('last_name'),
+            email=self.cleaned_data.get('email'),
+            password=self.cleaned_data.get('new_password'),
+        )
+
+        user.role = 'tutor'
+        user.save()
+
+        return user
+
+
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        """Form options"""
+
+        model = Feedback
+        fields = ['name','email','message']
+
+class LessonScheduleForm(forms.ModelForm):
+    class Meta:
+        model = LessonSchedule
+        fields = ['tutor', 'student', 'subject', 'day_of_week', 'start_time', 'duration', 'frequency', 'status']
+
+class StudentRequestForm(forms.ModelForm):
+    class Meta:
+        model = StudentRequest
+        fields = [
+            'language',      
+            'frequency',
+            'day_of_week',
+            'preferred_time',
+            'additional_details',
+            'difficulty',     
+            'status'
+        ]
+        widgets = {
+            'preferred_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+        }
+
+class TutorRequestForm(forms.ModelForm):
+    class Meta:
+        model = TutorRequest
+        fields = [
+            'day_of_week', 'available_time', 'languages', 'level_can_teach', 'additional_details'
+        ]
+        widgets = {
+            'available_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+        }

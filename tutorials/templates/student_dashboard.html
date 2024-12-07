@@ -1,5 +1,27 @@
 {% extends 'base_content.html' %}
+
 {% block content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <h1>Welcome to Your Dashboard, {{ user.username }}!</h1>
+
+                <p>Here, you can view your information, progress, and submit feedback about the course.</p>
+
+                <!-- Feedback Button -->
+                <a href="{% url 'submit_feedback' %}" class="btn btn-primary">Give Feedback</a>
+
+                <!-- Add other dashboard content below, such as progress, assignments, etc. -->
+                <div class="mt-4">
+                    <h3>Your Progress</h3>
+                    <p>Placeholder for student progress details.</p>
+                    <!-- More student-specific information here -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <section>
         <h2>Your Invoices</h2>
         <table>

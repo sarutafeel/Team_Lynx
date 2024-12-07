@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Invoice, Student
+from .models import Invoice, Student, Feedback
+
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'posted')  # Fields to display in the admin panel
+
 
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ('student', 'tutor', 'amount', 'status', 'due_date')

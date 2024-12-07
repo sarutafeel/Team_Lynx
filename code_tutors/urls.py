@@ -26,6 +26,10 @@ from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard,
 urlpatterns = [
     path("admin/create_invoice/", create_invoice, name="create_invoice"),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Custom admin dashboard
+    path('admin/lesson/<int:pk>/edit/', views.edit_lesson, name='edit_lesson'),
+    path('admin/lesson/<int:pk>/delete/', views.delete_lesson, name='delete_lesson'),
+    path('admin/requests/', views.admin_request_list, name='admin_request_list'),
+    path('admin/pair/<int:student_request_id>/<int:tutor_request_id>/', views.pair_request, name='pair_request'),
     path('admin/', admin.site.urls),  # Built-in Django admin
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -36,8 +40,11 @@ urlpatterns = [
     path('password/', views.PasswordView.as_view(), name='password'),
     path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
+    path('tutor_sign_up/', views.TutorSignUpView.as_view(), name='tutor_sign_up'),
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('tutor/dashboard/', views.tutor_dashboard, name='tutor_dashboard'),
+    path('submit-feedback/', views.FeedbackView.as_view(), name='submit_feedback'),
 ]
+
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

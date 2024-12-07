@@ -1,0 +1,34 @@
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.requests-table th,
+.requests-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.requests-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.requests-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.requests-table tr:hover {
+    background-color: #ddd;
+}
+
+.requests-table td a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.requests-table td a:hover {
+    text-decoration: underline;
+}
