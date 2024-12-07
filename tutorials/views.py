@@ -145,6 +145,12 @@ def admin_dashboard(request):
         "total_feedback": feedbacks.count(),
     }
 
+    student_requests = StudentRequest.objects.all().order_by('status', '-created_at')
+    tutor_requests = TutorRequest.objects.all()
+
+    # lesson scheduling
+    lessons = LessonSchedule.objects.all().order_by('start_time') 
+
     # Context
     context = {
         "requests": requests, 
