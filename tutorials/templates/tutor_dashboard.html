@@ -4,12 +4,12 @@
 <div class="container mt-5">
     <h1>Welcome to Your Dashboard, {{ tutor_name }}!</h1>
 
-    <!-- 提交可用时间按钮 -->
+    <!-- Submit Availability Button -->
     <div class="mt-4">
         <a href="{% url 'submit_tutor_request' %}" class="btn btn-primary">Submit Availability</a>
     </div>
 
-    <!-- 分配课程 -->
+    <!-- Allocated Lessons -->
     <div class="mt-5">
         <h2>Allocated Lessons</h2>
         <table class="table table-bordered">
@@ -40,7 +40,7 @@
         </table>
     </div>
 
-    <!-- 导师请求 -->
+    <!-- Tutor requests -->
     <div class="mt-5">
         <h2>Your Requests</h2>
         <table class="table table-bordered">

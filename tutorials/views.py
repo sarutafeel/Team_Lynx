@@ -70,8 +70,8 @@ def student_dashboard(request):
         form = StudentRequestForm(request.POST)
         if form.is_valid():
             student_request = form.save(commit=False)
-            student_request.student = student  # 关联当前登录学生
-            student_request.status = 'Pending'  # 确保状态为 Pending
+            student_request.student = student
+            student_request.status = 'Pending'
             student_request.save()
             messages.success(request, "Your request has been submitted successfully!")
             return redirect('student_dashboard')
