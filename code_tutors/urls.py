@@ -20,11 +20,12 @@ from django.contrib import admin
 from django.urls import path
 from tutorials import views
 from django.views.generic import TemplateView
-from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, create_invoice, FeedbackView
+from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, create_invoice, FeedbackView,delete_invoice
 
 
 urlpatterns = [
-    path("admin/create_invoice/", create_invoice, name="create_invoice"),
+    path('admin/create_invoice/', views.create_invoice, name="create_invoice"),
+    path('admin/delete-invoice/<int:invoice_id>/', views.delete_invoice, name='delete_invoice'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Custom admin dashboard
     path('admin/', admin.site.urls),  # Built-in Django admin
     path('admin/lesson/<int:pk>/edit/', views.edit_lesson, name='edit_lesson'),

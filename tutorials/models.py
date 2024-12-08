@@ -32,7 +32,7 @@ class Student(models.Model):
 class Tutor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tutor_profile')
     subject = models.CharField(max_length=100)
-    hourly_rate = models.DecimalField(max_digits=6, decimal_places=2)
+    hourly_rate = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     availability = models.TextField()  # Example field to store availability
     hours_taught = models.PositiveIntegerField(default=0)
 

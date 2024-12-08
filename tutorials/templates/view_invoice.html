@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Invoice Details</h1>
     <p><strong>Invoice ID:</strong> {{ invoice.id }}</p>
-    <p><strong>Student:</strong> {{ invoice.student.name }}</p>
+    <p><strong>Student:</strong> {{ invoice.student.user.full_name}}</p>
     <p><strong>Amount:</strong> {{ invoice.amount }}</p>
     <p><strong>Status:</strong> {{ invoice.status }}</p>
     <p><strong>Details:</strong> {{ invoice.details }}</p>

@@ -257,6 +257,11 @@ def log_out(request):
     logout(request)
     return redirect('home')
 
+def delete_invoice(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    invoice.delete()
+    return redirect('admin_dashboard')
+
 
 
 class PasswordView(LoginRequiredMixin, FormView):
@@ -313,6 +318,7 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def form_valid(self, form):
         self.object = form.save()
+        Student.objects.create(user=self.object)
         login(self.request, self.object)
         return super().form_valid(form)
 
@@ -328,6 +334,7 @@ class TutorSignUpView(LoginProhibitedMixin, FormView):
 
     def form_valid(self, form):
         self.object = form.save()
+        Tutor.objects.create(user=self.object)
         login(self.request, self.object)
         return super().form_valid(form)
 
