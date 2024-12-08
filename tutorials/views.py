@@ -52,9 +52,13 @@ def create_invoice(request):
 def mark_paid(request, invoice_id):
     """Mark an invoice as paid."""
     invoice = get_object_or_404(Invoice, id=invoice_id)
-    invoice.status = 'Paid'  # Adjust based on your model field
+    if invoice.status == 'Paid':
+        invoice.status = 'Unpaid'
+        messages.success(request, f"Invoice {invoice.id} marked as Unpaid.")
+    else:
+        invoice.status = 'Paid'
+        messages.success(request, f"Invoice {invoice.id} marked as paid.")
     invoice.save()
-    messages.success(request, f"Invoice {invoice.id} marked as paid.")
     return redirect('admin_dashboard')
 
 
