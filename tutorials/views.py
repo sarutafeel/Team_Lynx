@@ -16,7 +16,7 @@ from .models import Request, Tutor, Invoice, Student, LessonSchedule, StudentReq
 from django.db import models
 from django.db.models import Sum
 
-from .forms import LessonScheduleForm
+from .forms import LessonScheduleForm, StudentRequestForm, TutorRequestForm
 from django.http import HttpResponseRedirect
 
 
@@ -95,6 +95,23 @@ def dashboard(request):
 
 @login_required
 def student_dashboard(request):
+    student = request.user
+
+    #query student requests
+    student_requests = StudentRequest.objects.filter(student=student).order_by('-created_at')
+
+    if request.method == "POST":
+        form = StudentRequestForm(request.POST)
+        if form.is_valid():
+            student_request = form.save(commit=False)
+            student_request.student = student
+            student_request.status = 'Pending'
+            student_request.save()
+            messages.success(request, "Your request has been submitted successfully!")
+            return redirect('student_dashboard')
+    else:
+        form = StudentRequestForm()
+
     """Display the student's dashboard with invoices."""
     try:
         student = request.user.student_profile  # Access the related Student instance
@@ -108,10 +125,11 @@ def student_dashboard(request):
 
     # lesson scheduling
     lessons = LessonSchedule.objects.filter(student=request.user).order_by('start_time')
-    context = {
-        'lessons': lessons,
-    }
-    return render(request, 'student_dashboard.html', context)
+    return render(request, 'student_dashboard.html', {
+        'student_requests': student_requests,
+        'student_request_form': form,
+        'lessons': lessons
+    })
 
 @login_required
 def tutor_dashboard(request):
@@ -123,16 +141,17 @@ def tutor_dashboard(request):
     #tutor requests
     tutor_requests = TutorRequest.objects.filter(tutor=request.user).order_by('-status')
 
-    context = {
+    return render(request, 'tutor_dashboard.html', {
         'tutor_name': tutor_name,
         'lessons': lessons,
-        'tutor_requests': tutor_requests,
-    }
-    return render(request, 'tutor_dashboard.html', context)
+        'tutor_requests': tutor_requests,  
+    })
+
 
 @login_required
+@login_required
 def admin_dashboard(request):
-    if not request.user.is_staff:
+    if request.user.role != 'admin':
         return redirect('dashboard')
 
     # Fetch data
@@ -150,7 +169,11 @@ def admin_dashboard(request):
         "total_feedback": feedbacks.count(),  # Total feedback count
     }
 
-    
+    student_requests = StudentRequest.objects.all().order_by('status', '-created_at')
+    tutor_requests = TutorRequest.objects.all()  
+
+    # lesson scheduling
+    lessons = LessonSchedule.objects.all().order_by('start_time')  
 
     # Context
     context = {
@@ -366,7 +389,7 @@ def admin_request_list(request):
         return redirect('dashboard')
 
     student_requests = StudentRequest.objects.filter(status='pending').order_by('created_at')
-    tutor_requests = TutorRequest.objects.all()  # Show all tutor requests
+    tutor_requests = TutorRequest.objects.all()  # show all tutor requests
 
     return render(request, 'request_list.html', {
         'student_requests': student_requests,
@@ -379,28 +402,79 @@ def pair_request(request, student_request_id, tutor_request_id):
         return redirect('dashboard')
 
     student_request = get_object_or_404(StudentRequest, id=student_request_id)
-    tutor_request = get_object_or_404(TutorRequest, id=tutor_request_id)
-
+    tutor_requests = TutorRequest.objects.filter(
+        status='available',
+        day_of_week=student_request.day_of_week,
+        languages__icontains=student_request.language, 
+        level_can_teach=student_request.difficulty
+    )
+    tutor_request = None
     if request.method == 'POST':
-        # create lesson schedule after pairing
-        LessonSchedule.objects.create(
-            tutor=tutor_request.tutor,
-            student=student_request.student,
-            subject=student_request.subject,
-            start_time=request.POST.get('start_time'),
-            end_time=request.POST.get('end_time'),
-            frequency=student_request.frequency,
-            status='scheduled'
-        )
-        student_request.status = 'approved'
-        student_request.save()
+        tutor_request_id = request.POST.get('tutor_request_id')
+        start_time = request.POST.get('start_time')
+        duration = request.POST.get('duration') # as string
+        day_of_week = student_request.day_of_week
+        frequency = student_request.frequency
 
-        messages.success(request, "Student and tutor paired successfully!")
-        return redirect('admin_request_list')
+        if tutor_request_id and start_time and duration:
+            try:
+                duration = int(duration)
+            except ValueError:
+                messages.error(request, "Duration must be an integer.")
+                return redirect('pair_request', student_request_id=student_request_id)
+
+            tutor_request = get_object_or_404(TutorRequest, id=tutor_request_id)
+
+            # create lesson schedule after pairing
+            LessonSchedule.objects.create(
+                tutor=tutor_request.tutor,
+                student=student_request.student,
+                subject=student_request.language,
+                day_of_week=day_of_week,
+                start_time=request.POST.get('start_time'),
+                duration=duration,
+                frequency=student_request.frequency,
+                status='scheduled'
+            )
+            student_request.status = 'approved'
+            student_request.save()
+
+            messages.success(request, "Student and tutor paired successfully!")
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, "Please fill all fields.")
+    
 
     return render(request, 'pair_request.html', {
         'student_request': student_request,
-        'tutor_request': tutor_request,
+        'tutor_requests': tutor_requests,
     }) 
 
-     
+@login_required
+def submit_student_request(request):
+    if request.method == "POST":
+        form = StudentRequestForm(request.POST)
+        if form.is_valid():
+            student_request = form.save(commit=False)
+            student_request.student = request.user
+            student_request.status = 'Pending'
+            student_request.save()
+            messages.success(request, "Your request has been submitted!")
+            return redirect('student_dashboard')
+    else:
+        form = StudentRequestForm()
+    return render(request, 'submit_student_request.html', {'student_request_form': form})
+
+@login_required
+def submit_tutor_request(request):
+    if request.method == "POST":
+        form = TutorRequestForm(request.POST)
+        if form.is_valid():
+            tutor_request = form.save(commit=False)
+            tutor_request.tutor = request.user
+            tutor_request.save()
+            messages.success(request, "Your availability has been submitted!")
+            return redirect('tutor_dashboard')
+    else:
+        form = TutorRequestForm()
+    return render(request, 'submit_tutor_request.html', {'tutor_request_form': form})
