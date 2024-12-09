@@ -2,7 +2,7 @@
 from django.contrib.auth.hashers import check_password
 from django import forms
 from django.test import TestCase
-from tutorials.forms import SignUpForm
+from tutorials.forms import SignUpForm, TutorSignUpForm
 from tutorials.models import User
 
 class SignUpFormTestCase(TestCase):
@@ -77,3 +77,9 @@ class SignUpFormTestCase(TestCase):
         self.assertEqual(user.email, 'janedoe@example.org')
         is_password_correct = check_password('Password123', user.password)
         self.assertTrue(is_password_correct)
+
+    def test_form_save_tutor_sign_up(self):
+        form = TutorSignUpForm(data=self.form_input)
+        user = form.save()
+        self.assertEqual(user.role, 'tutor')  # Ensure the role is correctly set
+        self.assertTrue(User.objects.filter(username='@janedoe').exists())

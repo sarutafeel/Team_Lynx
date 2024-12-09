@@ -60,7 +60,7 @@ class UserModelTestCase(TestCase):
             difficulty="beginner",
             status="pending"
         )
-        tutor_request = TutorRequest.objects.create(
+        self.tutor_request = TutorRequest.objects.create(
             tutor=self.tutor.user,
             languages="Python, C++",
             day_of_week="monday",
@@ -228,8 +228,10 @@ class UserModelTestCase(TestCase):
         self.assertEqual(str(self.student_request), expected_str)
 
     def test_str_tutor_request_method(self):
-        expected_str = f"Request by {self.tutor_request.tutor.user.get_full_name()} for teaching {self.tutor_request.languages}"
+        full_name = self.tutor_request.tutor.full_name  
+        expected_str = f"Request by {full_name} for teaching {self.tutor_request.languages}"
         self.assertEqual(str(self.tutor_request), expected_str)
+
 
 
 
