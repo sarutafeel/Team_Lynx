@@ -8,6 +8,7 @@ class LogInFormTestCase(TestCase):
     """Unit tests of the log in form."""
 
     fixtures = ['tutorials/tests/fixtures/default_user.json']
+    
 
     def setUp(self):
         self.form_input = {'username': '@janedoe', 'password': 'Password123'}
@@ -47,6 +48,7 @@ class LogInFormTestCase(TestCase):
         fixture = User.objects.get(username='@johndoe')
         form_input = {'username': '@johndoe', 'password': 'Password123'}
         form = LogInForm(data=form_input)
+        form.is_valid()
         user = form.get_user()
         self.assertEqual(user, fixture)
 

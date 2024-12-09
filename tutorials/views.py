@@ -84,22 +84,28 @@ def home(request):
 
 @login_required
 def dashboard(request):
-    """Redirect users to their role-specific dashboards."""
     role_redirects = {
         'admin': 'admin_dashboard',
         'tutor': 'tutor_dashboard',
         'student': 'student_dashboard',
     }
-    return redirect(role_redirects.get(request.user.role, 'dashboard'))
-
+    user_role = getattr(request.user, 'role', None)
+    if user_role in role_redirects:
+        return redirect(role_redirects[user_role])
+    else:
+        messages.error(request, "Invalid user role.")
+        return redirect('home')  # Redirect to a safe fallback
+ 
 
 @login_required
 def student_dashboard(request):
+    """Display the student's dashboard."""
     student = request.user
 
-    #query student requests
+    # Query student requests
     student_requests = StudentRequest.objects.filter(student=student).order_by('-created_at')
 
+    # Handle form submission for student requests
     if request.method == "POST":
         form = StudentRequestForm(request.POST)
         if form.is_valid():
@@ -112,24 +118,27 @@ def student_dashboard(request):
     else:
         form = StudentRequestForm()
 
-    """Display the student's dashboard with invoices."""
+    # Validate student profile
     try:
-        student = request.user.student_profile  # Access the related Student instance
+        student_profile = request.user.student_profile  # Access the related Student instance
     except Student.DoesNotExist:
         messages.error(request, "You are not registered as a student.")
         return redirect("home")  # Redirect to a fallback page if not a student
 
-    invoices = Invoice.objects.filter(student=student)
-    return render(request, "student_dashboard.html", {"invoices": invoices})
+    # Fetch invoices and lessons
+    invoices = Invoice.objects.filter(student=student_profile)
+    lessons = LessonSchedule.objects.filter(student=student).order_by('start_time')
 
+    # Render the dashboard
+    context = {
+        "student_requests": student_requests,
+        "student_request_form": form,
+        "invoices": invoices,
+        "lessons": lessons,
+    }
 
-    # lesson scheduling
-    lessons = LessonSchedule.objects.filter(student=request.user).order_by('start_time')
-    return render(request, 'student_dashboard.html', {
-        'student_requests': student_requests,
-        'student_request_form': form,
-        'lessons': lessons
-    })
+    return render(request, "student_dashboard.html", context)
+
 
 @login_required
 def tutor_dashboard(request):
@@ -155,7 +164,8 @@ def admin_dashboard(request):
         return redirect('dashboard')
 
     # Fetch data
-    requests = Request.objects.select_related('student')
+    student_requests = Request.objects.select_related('student')
+    tutor_requests = Request.objects.select_related('tutor')
     tutors = Tutor.objects.select_related('user')
     invoices = Invoice.objects.select_related('student', 'tutor__user')
     students = Student.objects.select_related('user')
@@ -177,7 +187,8 @@ def admin_dashboard(request):
 
     # Context
     context = {
-        "requests": requests, 
+        "student_requests": student_requests,
+        "tutor_requests": tutor_requests, 
         "tutors": tutors,
         "students": students,  # Pass students queryset
         "invoices": invoices,
