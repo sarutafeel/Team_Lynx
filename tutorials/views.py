@@ -111,7 +111,7 @@ def student_dashboard(request):
         if form.is_valid():
             student_request = form.save(commit=False)
             student_request.student = student
-            student_request.status = 'Pending'
+            student_request.status = 'pending'
             student_request.save()
             messages.success(request, "Your request has been submitted successfully!")
             return redirect('student_dashboard')
@@ -416,6 +416,11 @@ def pair_request(request, student_request_id, tutor_request_id):
         return redirect('dashboard')
 
     student_request = get_object_or_404(StudentRequest, id=student_request_id)
+
+    if student_request.status != 'pending':
+        messages.error(request, "This student request cannot be paired as it is not in 'pending' status.")
+        return redirect('admin_dashboard')
+    
     tutor_requests = TutorRequest.objects.filter(
         status='available',
         day_of_week=student_request.day_of_week,
@@ -515,3 +520,27 @@ def cancel_lesson(request, lesson_id):
         return redirect('dashboard')
     
     return render(request, 'cancel_lesson.html', {'lesson': lesson})
+
+def cancel_student_request(request, request_id):
+    student_request = get_object_or_404(StudentRequest, id=request_id, student=request.user)
+
+    if student_request.status == 'pending':
+        student_request.status = "Cancelled"
+        student_request.save()
+        messages.success(request, "Your request has been cancelled.")
+    else:
+        messages.error(request, "Only pending requests can be cancelled.")
+    
+    return redirect('student_dashboard')
+
+def cancel_tutor_request(request, request_id):
+    tutor_request = get_object_or_404(TutorRequest, id=request_id, tutor=request.user)
+
+    if tutor_request.status == 'available':
+        tutor_request.status = "Cancelled"
+        tutor_request.save()
+        messages.success(request, "Your request has been cancelled.")
+    else:
+        messages.error(request, "Only available requests can be cancelled.")
+    
+    return redirect('tutor_dashboard')

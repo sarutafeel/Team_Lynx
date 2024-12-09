@@ -21,6 +21,7 @@
                     <th>Duration (min)</th>
                     <th>Status</th>
                     <th>Actions</th>
+                    <th>Feedback</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,6 +39,13 @@
                             <span class="badge bg-secondary">Cancelled</span>
                         {% endif %}
                     </td>
+                    <td>
+                        {% if lesson.status == 'scheduled' %}
+                        <a href="{% url 'submit_feedback' %}" class="btn btn-primary btn-sm">Give Feedback</a>
+                        {% else %}
+                            <span class="badge bg-secondary">No Feedback</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
@@ -50,7 +58,7 @@
 
     <!-- Tutor requests -->
     <div class="mt-5">
-        <h2>Your Requests</h2>34
+        <h2>Your Requests</h2>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -58,6 +66,7 @@
                     <th>Available Time</th>
                     <th>Additional Details</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -68,6 +77,13 @@
                     <td>{{ request.additional_details }}</td>
                     <td>
                         <span class="badge {% if request.status == 'available' %}bg-success{% else %}bg-danger{% endif %}">{{ request.status }}</span>
+                    </td>
+                    <td>
+                        {% if request.status == 'available' %}
+                            <a href="{% url 'cancel_tutor_request' request.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                        {% else %}
+                            <span class="badge bg-secondary">Cannot Cancel</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

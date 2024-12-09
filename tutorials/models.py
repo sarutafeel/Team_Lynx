@@ -132,7 +132,7 @@ class StudentRequest(models.Model):
     preferred_time = models.TimeField() 
     additional_details = models.TextField(blank=True, null=True)
     difficulty = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
-    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending')
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('cancelled', 'Cancelled')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -145,7 +145,7 @@ class TutorRequest(models.Model):
     available_time = models.TimeField() 
     level_can_teach = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     additional_details = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=20, choices=[('available', 'Available'), ('busy', 'Busy')], default='available')
+    status = models.CharField(max_length=20, choices=[('available', 'Available'), ('busy', 'Busy'),('cancelled', 'Cancelled')], default='available')
 
     def __str__(self):
         return f"Request by {self.tutor.full_name} for teaching {self.languages}"

@@ -25,6 +25,7 @@
                             <th>Preferred Time</th>
                             <th>Status</th>
                             <th>Details</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,6 +41,13 @@
                                 </span>
                             </td>
                             <td>{{ request.additional_details }}</td>
+                            <td>
+                                {% if request.status == 'pending' %}
+                                    <a href="{% url 'cancel_student_request' request.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                                {% else %}
+                                    <span class="badge bg-secondary">Cannot Cancel</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
@@ -61,6 +69,8 @@
                             <th>Start Time</th>
                             <th>Duration</th>
                             <th>Tutor</th>
+                            <th>Actions</th>
+                            <th>Feedback</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,6 +81,20 @@
                             <td>{{ lesson.start_time }}</td>
                             <td>{{ lesson.duration }} mins</td>
                             <td>{{ lesson.tutor.first_name }} {{ lesson.tutor.last_name }}</td>
+                            <td>
+                                {% if lesson.status == 'scheduled' %}
+                                    <a href="{% url 'cancel_lesson' lesson.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                                {% else %}
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if lesson.status == 'scheduled' %}
+                                <a href="{% url 'submit_feedback' %}" class="btn btn-primary btn-sm">Give Feedback</a>
+                                {% else %}
+                                    <span class="badge bg-secondary">No Feedback</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>

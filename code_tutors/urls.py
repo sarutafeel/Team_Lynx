@@ -20,7 +20,7 @@ from django.contrib import admin
 from django.urls import path
 from tutorials import views
 from django.views.generic import TemplateView
-from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, create_invoice, FeedbackView,delete_invoice, submit_student_request,submit_tutor_request, cancel_lesson
+from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, create_invoice, FeedbackView,delete_invoice, submit_student_request,submit_tutor_request, cancel_lesson, cancel_student_request, cancel_tutor_request
 
 
 urlpatterns = [
@@ -48,6 +48,8 @@ urlpatterns = [
     path('student/request/', submit_student_request, name='submit_student_request'),
     path('tutor/request/', submit_tutor_request, name='submit_tutor_request'),
     path('lesson/<int:lesson_id>/cancel/', cancel_lesson, name='cancel_lesson'),
+    path('student/request/<int:request_id>/cancel/', cancel_student_request, name='cancel_student_request'),
+    path('tutor/request/<int:request_id>/cancel/', cancel_tutor_request, name='cancel_tutor_request'),
 
 ]
 
