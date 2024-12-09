@@ -1,0 +1,16 @@
+{% extends "base_content.html" %}
+{% block content %}
+<div class="container my-4">
+    <h2>Cancel Lesson</h2>
+    <p>Are you sure you want to cancel this lesson?</p>
+    <p><strong>Lesson:</strong> {{ lesson.subject }}</p>
+    <p><strong>Tutor:</strong> {{ lesson.tutor.get_full_name }}</p>
+    <p><strong>Student:</strong> {{ lesson.student.get_full_name }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Cancel Lesson</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+{% endblock %}

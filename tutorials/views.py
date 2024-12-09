@@ -183,7 +183,7 @@ def admin_dashboard(request):
     tutor_requests = TutorRequest.objects.all()  
 
     # lesson scheduling
-    lessons = LessonSchedule.objects.all().order_by('start_time')  
+    lessons = LessonSchedule.objects.all().distinct().order_by('tutor', 'student', 'subject', 'start_time', 'day_of_week')  
 
     # Context
     context = {
@@ -194,6 +194,9 @@ def admin_dashboard(request):
         "invoices": invoices,
         "feedbacks": feedbacks,  # Include feedback data
         "analytics": analytics,
+        'student_requests': student_requests,
+        'tutor_requests': tutor_requests,
+        "lessons" : lessons
     }
 
     return render(request, "admin_dashboard.html", context )
@@ -436,6 +439,7 @@ def pair_request(request, student_request_id, tutor_request_id):
 
             tutor_request = get_object_or_404(TutorRequest, id=tutor_request_id)
 
+            
             # create lesson schedule after pairing
             LessonSchedule.objects.create(
                 tutor=tutor_request.tutor,
@@ -447,8 +451,12 @@ def pair_request(request, student_request_id, tutor_request_id):
                 frequency=student_request.frequency,
                 status='scheduled'
             )
+
             student_request.status = 'approved'
             student_request.save()
+
+            tutor_request.status = 'scheduled'
+            tutor_request.save()
 
             messages.success(request, "Student and tutor paired successfully!")
             return redirect('admin_dashboard')
@@ -468,7 +476,7 @@ def submit_student_request(request):
         if form.is_valid():
             student_request = form.save(commit=False)
             student_request.student = request.user
-            student_request.status = 'Pending'
+            student_request.status = 'pending'
             student_request.save()
             messages.success(request, "Your request has been submitted!")
             return redirect('student_dashboard')
@@ -483,9 +491,27 @@ def submit_tutor_request(request):
         if form.is_valid():
             tutor_request = form.save(commit=False)
             tutor_request.tutor = request.user
+            tutor_request.status = 'available'
             tutor_request.save()
             messages.success(request, "Your availability has been submitted!")
             return redirect('tutor_dashboard')
     else:
         form = TutorRequestForm()
     return render(request, 'submit_tutor_request.html', {'tutor_request_form': form})
+
+
+@login_required
+def cancel_lesson(request, lesson_id):
+    lesson = get_object_or_404(LessonSchedule, id=lesson_id)
+
+    if request.user != lesson.student and request.user != lesson.tutor:
+        messages.error(request, "You are not authorised to cancel this lesson.")
+        return redirect('dashboard')
+    if request.method == "POST":
+        lesson.status = 'cancelled'
+        lesson.save()
+
+        messages.success(request, f"Lesson '{lesson.subject}' has been cancelled.")
+        return redirect('dashboard')
+    
+    return render(request, 'cancel_lesson.html', {'lesson': lesson})

@@ -18,8 +18,9 @@
                     <th>Student Name</th>
                     <th>Subject</th>
                     <th>Start Time</th>
-                    <th>End Time</th>
+                    <th>Duration (min)</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,8 +29,15 @@
                     <td>{{ lesson.student.first_name }} {{ lesson.student.last_name }}</td>
                     <td>{{ lesson.subject }}</td>
                     <td>{{ lesson.start_time }}</td>
-                    <td>{{ lesson.end_time }}</td>
+                    <td>{{ lesson.duration }}</td>
                     <td>{{ lesson.status }}</td>
+                    <td>
+                        {% if lesson.status == 'scheduled' %}
+                            <a href="{% url 'cancel_lesson' lesson.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                        {% else %}
+                            <span class="badge bg-secondary">Cancelled</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
@@ -42,7 +50,7 @@
 
     <!-- Tutor requests -->
     <div class="mt-5">
-        <h2>Your Requests</h2>
+        <h2>Your Requests</h2>34
         <table class="table table-bordered">
             <thead>
                 <tr>
