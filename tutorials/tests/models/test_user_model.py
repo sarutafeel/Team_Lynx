@@ -60,7 +60,7 @@ class UserModelTestCase(TestCase):
             difficulty="beginner",
             status="pending"
         )
-        tutor_request = TutorRequest.objects.create(
+        self.tutor_request = TutorRequest.objects.create(
             tutor=self.tutor.user,
             languages="Python, C++",
             day_of_week="monday",
