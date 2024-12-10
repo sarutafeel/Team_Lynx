@@ -1,0 +1,48 @@
+{% extends 'base_content.html' %}
+
+{% block content %}
+<!-- Display Student Requests -->
+<div class="mt-5">
+    <h3>Your Requests</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Language</th>
+                <th>Frequency</th>
+                <th>Day</th>
+                <th>Preferred Time</th>
+                <th>Status</th>
+                <th>Details</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in student_requests %}
+            <tr>
+                <td>{{ request.language }}</td>
+                <td>{{ request.frequency }}</td>
+                <td>{{ request.day_of_week }}</td>
+                <td>{{ request.preferred_time }}</td>
+                <td>
+                    <span class="badge {% if request.status == 'Pending' %}bg-warning{% elif request.status == 'Approved' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ request.status }}
+                    </span>
+                </td>
+                <td>{{ request.additional_details }}</td>
+                <td>
+                    {% if request.status == 'pending' %}
+                        <a href="{% url 'cancel_student_request' request.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                    {% else %}
+                        <span class="badge bg-secondary">Cannot Cancel</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No requests submitted.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -142,103 +142,7 @@
             </div>
         </section>
 
-        <section class="mt-5">
-            <h2 class="mb-3">Feedback Management</h2>
-            <div class="table-responsive" style="max-height: 175px; overflow-y: auto; border: 1px solid #ddd;">
-                <table class="table table-bordered table-hover">
-                    <thead class="table-warning">
-                        <tr>
-                            <th>Student Name</th>
-                            <th>Email</th>
-                            <th>Message (Preview)</th>
-                            <th>Submitted At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for feedback in feedbacks %}
-                        <tr>
-                            <td>{{ feedback.name }}</td>
-                            <td>{{ feedback.email }}</td>
-                            <td>{{ feedback.message|truncatewords:10 }}</td>
-                            <td>{{ feedback.posted|date:"Y-m-d H:i:s" }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center">No feedback available.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-    <section>
-        <h2>Create Invoice</h2>
-        <form method="post" action="{% url 'create_invoice' %}">
-            {% csrf_token %}
-            <label for="student">Student:</label>
-            <select name="student" id="student">
-                {% for student in students %}
-                    <option value="{{ student.id }}">{{ student.user.full_name }}</option>
-                {% endfor %}
-            </select>
-            <label for="tutor">Tutor:</label>
-            <select name="tutor" id="tutor">
-                {% for tutor in tutors %}
-                    <option value="{{ tutor.id }}">{{ tutor.user.full_name }}</option>
-                {% endfor %}
-            </select>
-    
-            <label for="amount">Amount:</label>
-            <input type="number" step="0.01" name="amount" id="amount" required>
-    
-            <label for="due_date">Due Date:</label>
-            <input type="date" name="due_date" id="due_date" required>
-    
-            <button type="submit">Create Invoice</button>
-        </form>
-    </section>    
-
-    <section>
-        <h2>Invoices and Payments</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="table-dark text-light">
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Tutor Name</th>
-                        <th>Invoice ID</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for invoice in invoices %}
-                    <tr>
-                        <td>{{ invoice.student.user.full_name }}</td>
-                        <td>{{ invoice.tutor.user.full_name }}</td>
-                        <td>{{ invoice.id }}</td>
-                        <td>{{ invoice.amount }}</td>
-                        <td>{{ invoice.status }}</td>
-                        <td>
-                            <a href="{% url 'view_invoice' invoice.id %}" class="btn btn-info btn-sm">View</a> | 
-                            <a href="{% url 'mark_paid' invoice.id %}" class="btn btn-sm {% if invoice.status == 'Paid' %} btn-secondary {%else%} btn-primary{%endif%}">{% if invoice.status == 'Paid' %} Mark as Unpaid  {% else %}    Mark as Paid    {% endif %}</a> |
-                            <a href="{% url 'delete_invoice' invoice.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this invoice?');">Delete</a>
-
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">No invoices available.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-</div>
+    </div>
 
     <section>
         <h2>Notifications</h2>
@@ -251,17 +155,6 @@
             {% empty %}
                 <li>No new notifications.</li>
             {% endfor %}
-        </ul>
-    </section>
-
-    <section>
-        <h2>Analytics</h2>
-        <ul>
-            <li>Total Tutors: {{ analytics.total_tutors }}</li>
-            <li>Total Students: {{ analytics.total_students }}</li>
-            <li>Total Hours Taught: {{ analytics.hours_taught }}</li>
-            <li>Total Feedback: {{ analytics.total_feedback }}</li>
-            <li>Total Revenue: {{ analytics.total_revenue }}</li>
         </ul>
     </section>
 

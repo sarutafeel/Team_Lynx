@@ -1,0 +1,15 @@
+{% extends 'base_content.html' %}
+{% block content %}
+    <section>
+        <h2>Analytics</h2>
+        <ul>
+            <li>Total Tutors: {{ analytics.total_tutors }}</li>
+            <li>Total Students: {{ analytics.total_students }}</li>
+            <li>Total Hours Taught: {{ analytics.hours_taught }}</li>
+            <li>Total Feedback: {{ analytics.total_feedback }}</li>
+            <li>Total Revenue: {{ analytics.total_revenue }}</li>
+        </ul>
+    </section>
+
+{% endblock %}
+

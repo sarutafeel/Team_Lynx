@@ -5,59 +5,6 @@
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <h1>Welcome to Your Dashboard, {{ user.username }}!</h1>
-
-            <p>Here, you can view your requests, scheduled lessons, and progress.</p>
-
-            <!-- Request Button -->
-            <div class="mt-4">
-                <a href="{% url 'submit_student_request' %}" class="btn btn-primary">Submit a Request</a>
-            </div>
-
-            <!-- Display Student Requests -->
-            <div class="mt-5">
-                <h3>Your Requests</h3>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Language</th>
-                            <th>Frequency</th>
-                            <th>Day</th>
-                            <th>Preferred Time</th>
-                            <th>Status</th>
-                            <th>Details</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for request in student_requests %}
-                        <tr>
-                            <td>{{ request.language }}</td>
-                            <td>{{ request.frequency }}</td>
-                            <td>{{ request.day_of_week }}</td>
-                            <td>{{ request.preferred_time }}</td>
-                            <td>
-                                <span class="badge {% if request.status == 'Pending' %}bg-warning{% elif request.status == 'Approved' %}bg-success{% else %}bg-danger{% endif %}">
-                                    {{ request.status }}
-                                </span>
-                            </td>
-                            <td>{{ request.additional_details }}</td>
-                            <td>
-                                {% if request.status == 'pending' %}
-                                    <a href="{% url 'cancel_student_request' request.id %}" class="btn btn-danger btn-sm">Cancel</a>
-                                {% else %}
-                                    <span class="badge bg-secondary">Cannot Cancel</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center">No requests submitted.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
             <!-- Display Scheduled Lessons -->
             <div class="mt-5">
                 <h3>Your Scheduled Lessons</h3>
@@ -103,43 +50,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-
-            <section class="mt-5">
-                <h3>Your Invoices</h3>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Tutor</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Due Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for invoice in invoices %}
-                        <tr>
-                            <td>{{ invoice.tutor.user.full_name }}</td>
-                            <td>{{ invoice.amount }}</td>
-                            <td>
-                                <span class="badge {% if invoice.status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
-                                    {{ invoice.status }}
-                                </span>
-                            </td>
-                            <td>{{ invoice.due_date }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center">You have no invoices.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </section>
-
-            <!-- Feedback Button -->
-            <div class="mt-4">
-                <a href="{% url 'submit_feedback' %}" class="btn btn-primary">Give Feedback</a>
             </div>
 
             <!-- Placeholder for Student Progress -->

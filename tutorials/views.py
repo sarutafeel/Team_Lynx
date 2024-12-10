@@ -21,6 +21,168 @@ from django.http import HttpResponseRedirect
 
 
 @login_required
+def student_dashboard(request):
+    student = request.user
+    lessons = LessonSchedule.objects.filter(student=student).order_by('start_time')
+    context = {"lessons": lessons}
+    return render(request, "student_dashboard.html", context)
+
+
+@login_required
+def student_requests(request):
+    """View student requests."""
+    student = request.user
+    # Query student requests
+    student_requests = StudentRequest.objects.filter(student=student).order_by('-created_at')
+    context = {"student_requests": student_requests}
+    return render(request, "student_requests.html", context)
+
+
+@login_required
+def student_invoices(request):
+    """View student invoices."""
+    try:
+        student_profile = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, "You are not registered as a student.")
+        return redirect("home")
+
+    invoices = Invoice.objects.filter(student=student_profile).order_by("-due_date")
+
+    context = {"invoices": invoices}
+    return render(request, "student_invoices.html", context)
+
+
+
+
+
+
+
+# @login_required
+# def student_dashboard(request):
+#     """Display the student's dashboard."""
+#     student = request.user
+
+#     # Query student requests
+#     student_requests = StudentRequest.objects.filter(student=student).order_by('-created_at')
+
+#     # Handle form submission for student requests
+#     if request.method == "POST":
+#         form = StudentRequestForm(request.POST)
+#         if form.is_valid():
+#             student_request = form.save(commit=False)
+#             student_request.student = student
+#             student_request.status = 'pending'
+#             student_request.save()
+#             messages.success(request, "Your request has been submitted successfully!")
+#             return redirect('student_dashboard')
+#     else:
+#         form = StudentRequestForm()
+
+#     # Validate student profile
+#     try:
+#         student_profile = request.user.student_profile  # Access the related Student instance
+#     except Student.DoesNotExist:
+#         messages.error(request, "You are not registered as a student.")
+#         return redirect("home")  # Redirect to a fallback page if not a student
+
+#     # Fetch invoices and lessons
+#     invoices = Invoice.objects.filter(student=student_profile)
+#     lessons = LessonSchedule.objects.filter(student=student).order_by('start_time')
+
+#     # Render the dashboard
+#     context = {
+#         "student_requests": student_requests,
+#         "student_request_form": form,
+#         "invoices": invoices,
+#         "lessons": lessons,
+#     }
+
+#     return render(request, "student_dashboard.html", context)
+
+
+
+
+
+
+
+@login_required
+def tutor_dashboard(request):
+    """Tutor Dashboard showing allocated lessons."""
+    lessons = LessonSchedule.objects.filter(tutor=request.user).order_by('start_time')
+    context = {'lessons': lessons, 'tutor_name': request.user.get_full_name() }
+    return render(request, 'tutor_dashboard.html', context)
+
+
+
+@login_required
+def tutor_requests(request):
+    """Tutor Requests page."""
+    tutor_requests = TutorRequest.objects.filter(tutor=request.user).order_by('-status')
+    context = {'tutor_requests': tutor_requests}
+    return render(request, 'tutor_requests.html', context)
+
+
+
+
+@login_required
+def admin_dashboard(request):
+    """Admin Dashboard showing requests and lesson scheduling."""
+    student_requests = StudentRequest.objects.all().order_by('status', '-created_at')
+    tutor_requests = TutorRequest.objects.all()  
+    lessons = LessonSchedule.objects.all().distinct().order_by('tutor', 'student', 'subject', 'start_time', 'day_of_week')  
+
+    context = {
+        'student_requests': student_requests,
+        'tutor_requests': tutor_requests,
+        'lessons': lessons,
+    }
+    return render(request, 'admin_dashboard.html', context)
+
+
+@login_required
+def admin_invoices(request):
+    """Admin view for invoices."""
+    tutors = Tutor.objects.select_related('user')
+    invoices = Invoice.objects.select_related('student', 'tutor__user').order_by('-created_at')
+    students = Student.objects.select_related('user')
+    
+    context = {
+        'invoices': invoices,
+        'students' : students,
+        'tutors' : tutors
+    }
+    return render(request, 'admin_invoices.html', context)
+
+
+@login_required
+def admin_feedback(request):
+    """Admin view for feedback."""
+    feedbacks = Feedback.objects.all().order_by('-posted')  # Fetch all feedback, ordered by newest first
+    context = {'feedbacks': feedbacks}
+    return render(request, 'admin_feedback.html', context)
+
+
+@login_required
+def admin_analytics(request):
+    """Admin view for analytics."""
+    tutors = Tutor.objects.select_related('user')
+    students = Student.objects.select_related('user')
+    feedbacks = Feedback.objects.all().order_by('-posted')  # Fetch all feedback, ordered by newest first
+
+    # Analytics
+    analytics = {
+        "total_tutors": tutors.count(),
+        "total_students": students.count(),
+        "hours_taught": tutors.aggregate(total_hours=Sum('hours_taught'))['total_hours'] or 0,
+        "total_feedback": feedbacks.count(),  # Total feedback count
+    }
+    context = {'analytics': analytics}
+    return render(request, 'admin_analytics.html', context)
+
+
+
+@login_required
 def create_invoice(request):
     if request.method == "POST":
         student_id = request.POST.get("student")
@@ -68,6 +230,8 @@ def view_invoice(request, invoice_id):
     invoice = get_object_or_404(Invoice, id=invoice_id)
     return render(request, 'view_invoice.html', {'invoice': invoice})
 
+
+
 @login_required
 def dashboard(request):
     """Display the current user's dashboard."""
@@ -95,111 +259,8 @@ def dashboard(request):
     else:
         messages.error(request, "Invalid user role.")
         return redirect('home')  # Redirect to a safe fallback
- 
-
-@login_required
-def student_dashboard(request):
-    """Display the student's dashboard."""
-    student = request.user
-
-    # Query student requests
-    student_requests = StudentRequest.objects.filter(student=student).order_by('-created_at')
-
-    # Handle form submission for student requests
-    if request.method == "POST":
-        form = StudentRequestForm(request.POST)
-        if form.is_valid():
-            student_request = form.save(commit=False)
-            student_request.student = student
-            student_request.status = 'pending'
-            student_request.save()
-            messages.success(request, "Your request has been submitted successfully!")
-            return redirect('student_dashboard')
-    else:
-        form = StudentRequestForm()
-
-    # Validate student profile
-    try:
-        student_profile = request.user.student_profile  # Access the related Student instance
-    except Student.DoesNotExist:
-        messages.error(request, "You are not registered as a student.")
-        return redirect("home")  # Redirect to a fallback page if not a student
-
-    # Fetch invoices and lessons
-    invoices = Invoice.objects.filter(student=student_profile)
-    lessons = LessonSchedule.objects.filter(student=student).order_by('start_time')
-
-    # Render the dashboard
-    context = {
-        "student_requests": student_requests,
-        "student_request_form": form,
-        "invoices": invoices,
-        "lessons": lessons,
-    }
-
-    return render(request, "student_dashboard.html", context)
 
 
-@login_required
-def tutor_dashboard(request):
-    tutor_name = request.user.get_full_name() 
-
-    #lesson scheduling
-    lessons = LessonSchedule.objects.filter(tutor=request.user).order_by('start_time')
-
-    #tutor requests
-    tutor_requests = TutorRequest.objects.filter(tutor=request.user).order_by('-status')
-
-    return render(request, 'tutor_dashboard.html', {
-        'tutor_name': tutor_name,
-        'lessons': lessons,
-        'tutor_requests': tutor_requests,  
-    })
-
-
-@login_required
-@login_required
-def admin_dashboard(request):
-    if request.user.role != 'admin':
-        return redirect('dashboard')
-
-    # Fetch data
-    student_requests = Request.objects.select_related('student')
-    tutor_requests = Request.objects.select_related('tutor')
-    tutors = Tutor.objects.select_related('user')
-    invoices = Invoice.objects.select_related('student', 'tutor__user')
-    students = Student.objects.select_related('user')
-    feedbacks = Feedback.objects.all().order_by('-posted')  # Fetch all feedback, ordered by newest first
-
-    # Analytics
-    analytics = {
-        "total_tutors": tutors.count(),
-        "total_students": students.count(),
-        "hours_taught": tutors.aggregate(total_hours=Sum('hours_taught'))['total_hours'] or 0,
-        "total_feedback": feedbacks.count(),  # Total feedback count
-    }
-
-    student_requests = StudentRequest.objects.all().order_by('status', '-created_at')
-    tutor_requests = TutorRequest.objects.all()  
-
-    # lesson scheduling
-    lessons = LessonSchedule.objects.all().distinct().order_by('tutor', 'student', 'subject', 'start_time', 'day_of_week')  
-
-    # Context
-    context = {
-        "student_requests": student_requests,
-        "tutor_requests": tutor_requests, 
-        "tutors": tutors,
-        "students": students,  # Pass students queryset
-        "invoices": invoices,
-        "feedbacks": feedbacks,  # Include feedback data
-        "analytics": analytics,
-        'student_requests': student_requests,
-        'tutor_requests': tutor_requests,
-        "lessons" : lessons
-    }
-
-    return render(request, "admin_dashboard.html", context )
 
 
 class LoginProhibitedMixin:
@@ -489,6 +550,7 @@ def submit_student_request(request):
         form = StudentRequestForm()
     return render(request, 'submit_student_request.html', {'student_request_form': form})
 
+
 @login_required
 def submit_tutor_request(request):
     if request.method == "POST":
@@ -503,6 +565,8 @@ def submit_tutor_request(request):
     else:
         form = TutorRequestForm()
     return render(request, 'submit_tutor_request.html', {'tutor_request_form': form})
+
+
 
 
 @login_required
