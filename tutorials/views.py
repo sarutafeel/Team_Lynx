@@ -232,13 +232,6 @@ def view_invoice(request, invoice_id):
 
 
 
-@login_required
-def dashboard(request):
-    """Display the current user's dashboard."""
-
-    current_user = request.user
-    return render(request, 'dashboard.html', {'user': current_user})
-
 
 @login_prohibited
 def home(request):
@@ -288,7 +281,9 @@ class LoginProhibitedMixin:
             )
         else:
             return self.redirect_when_logged_in_url
-        
+
+
+
 @login_required
 def edit_lesson(request, pk):
     lesson = get_object_or_404(LessonSchedule, pk=pk)
@@ -301,6 +296,8 @@ def edit_lesson(request, pk):
     else:
         form = LessonScheduleForm(instance=lesson)
     return render(request, 'edit_lesson.html', {'form': form})
+
+
 
 @login_required
 def delete_lesson(request, pk):
@@ -353,11 +350,13 @@ class LogInView(LoginProhibitedMixin, View):
         return render(self.request, 'log_in.html', {'form': form, 'next': self.next})
 
 
+
 def log_out(request):
     """Log out the current user"""
 
     logout(request)
     return redirect('home')
+
 
 def delete_invoice(request, invoice_id):
     invoice = get_object_or_404(Invoice, id=invoice_id)
@@ -426,7 +425,13 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
-    
+
+
+
+
+
+
+
 class TutorSignUpView(LoginProhibitedMixin, FormView):
     """View to handle tutor signups."""
 
@@ -457,6 +462,7 @@ class FeedbackView(FormView):
     
     def get_success_url(self):
         return reverse('dashboard')
+
     
 @login_required
 def admin_request_list(request):
@@ -470,6 +476,7 @@ def admin_request_list(request):
         'student_requests': student_requests,
         'tutor_requests': tutor_requests,
     })
+
 
 @login_required
 def pair_request(request, student_request_id, tutor_request_id):
@@ -535,6 +542,8 @@ def pair_request(request, student_request_id, tutor_request_id):
         'tutor_requests': tutor_requests,
     }) 
 
+
+
 @login_required
 def submit_student_request(request):
     if request.method == "POST":
@@ -585,6 +594,7 @@ def cancel_lesson(request, lesson_id):
     
     return render(request, 'cancel_lesson.html', {'lesson': lesson})
 
+
 def cancel_student_request(request, request_id):
     student_request = get_object_or_404(StudentRequest, id=request_id, student=request.user)
 
@@ -596,6 +606,7 @@ def cancel_student_request(request, request_id):
         messages.error(request, "Only pending requests can be cancelled.")
     
     return redirect('student_dashboard')
+
 
 def cancel_tutor_request(request, request_id):
     tutor_request = get_object_or_404(TutorRequest, id=request_id, tutor=request.user)
