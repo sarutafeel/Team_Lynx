@@ -150,6 +150,15 @@ class LessonScheduleForm(forms.ModelForm):
     class Meta:
         model = LessonSchedule
         fields = ['tutor', 'student', 'subject', 'day_of_week', 'start_time', 'duration', 'frequency', 'status']
+        widgets = {
+            'start_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Disable tutor and student fields
+        self.fields['tutor'].disabled = True
+        self.fields['student'].disabled = True
 
 class StudentRequestForm(forms.ModelForm):
     class Meta:
