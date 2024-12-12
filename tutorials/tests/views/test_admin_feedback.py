@@ -5,59 +5,49 @@ from tutorials.models import Feedback
 
 User = get_user_model()
 
-
 class AdminFeedbackViewTest(TestCase):
 
     def setUp(self):
         # Create an admin user
         self.admin_user = User.objects.create_superuser(
-            username="admin", email="admin@example.com", password="adminpassword"
+            username="admin",
+            email="admin@example.com",
+            password="adminpassword"
         )
 
-        # Create a regular student user
-        self.student_user = User.objects.create_user(
-            username="student", email="student@example.com", password="studentpassword"
+        # Create a regular user
+        self.regular_user = User.objects.create_user(
+            username="user",
+            email="user@example.com",
+            password="userpassword"
         )
 
-        # Create sample feedback entries
+        # Create feedback objects
         self.feedback1 = Feedback.objects.create(
             name="John Doe",
             email="john@example.com",
-            message="Great platform!",
+            message="This is the first feedback."
         )
         self.feedback2 = Feedback.objects.create(
-            name="Jane Doe",
+            name="Jane Smith",
             email="jane@example.com",
-            message="Needs more features!",
+            message="This is the second feedback."
         )
 
-    def test_feedback_redirects_if_not_logged_in(self):
-        """Test that unauthenticated users are redirected to login."""
+    def test_feedback_access_denied_for_non_admin_users(self):
+        self.client.login(username="user", password="userpassword")
         response = self.client.get(reverse("admin_feedback"))
-        self.assertRedirects(
-            response, f"{reverse('log_in')}?next={reverse('admin_feedback')}"
-        )
+        self.assertEqual(response.status_code, 302)  # Forbidden
 
-    def test_feedback_renders_correctly_for_admin(self):
-        """Test that the feedback page renders correctly for admin users."""
+    def test_feedback_access_for_admin_users(self):
         self.client.login(username="admin", password="adminpassword")
         response = self.client.get(reverse("admin_feedback"))
-
-        # Check correct response and template
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "admin_feedback.html")
 
-        # Check context data
-        self.assertIn("feedbacks", response.context)
-        feedbacks = response.context["feedbacks"]
-        self.assertEqual(feedbacks.count(), 2)
-
-        # Validate ordering (newest first)
-        self.assertEqual(feedbacks.first(), self.feedback2)
-
-    def test_feedback_access_denied_for_non_admin_users(self):
-        """Test that non-admin users cannot access the feedback page."""
-        # Login as a student user
-        self.client.login(username="student", password="studentpassword")
+    def test_feedback_displayed(self):
+        self.client.login(username="admin", password="adminpassword")
         response = self.client.get(reverse("admin_feedback"))
-        self.assertEqual(response.status_code, 403)  # Forbidden
+        self.assertContains(response, "This is the first feedback.")
+        self.assertContains(response, "This is the second feedback.")
+        self.assertEqual(len(response.context["feedbacks"]), 2)

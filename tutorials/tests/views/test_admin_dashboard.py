@@ -7,22 +7,22 @@ from tutorials.models import (
 
 User = get_user_model()
 
-class AdminDashboardViewTest(TestCase):
 
+class AdminDashboardViewTest(TestCase):
     def setUp(self):
         # Create an admin user
         self.admin_user = User.objects.create_superuser(
-            username="admin", email="admin@example.com", password="adminpassword"
+            username="admin", email="admin@example.com", password="adminpassword", role = "admin"
         )
 
         # Create related student and tutor users
         self.student_user = User.objects.create_user(
-            username="student", email="student@example.com", password="testpassword"
+            username="student", email="student@example.com", password="testpassword", role = "student"
         )
         self.student = Student.objects.create(user=self.student_user)
 
         self.tutor_user = User.objects.create_user(
-            username="tutor", email="tutor@example.com", password="testpassword"
+            username="tutor", email="tutor@example.com", password="testpassword", role = "tutor"
         )
         self.tutor = Tutor.objects.create(user=self.tutor_user)
 
@@ -32,14 +32,14 @@ class AdminDashboardViewTest(TestCase):
             language="Python",
             frequency="Weekly",
             day_of_week="Monday",
-            preferred_time="10:00",
+            preferred_time="10:00:00",  # Corrected time format
             status="pending",
         )
 
         self.tutor_request = TutorRequest.objects.create(
             tutor=self.tutor_user,
             languages="Python, JavaScript",
-            available_time="2024-12-12 10:00:00",
+            available_time="10:00:00",  # Corrected time format
             additional_details="Evenings only.",
             status="available",
         )
@@ -49,7 +49,7 @@ class AdminDashboardViewTest(TestCase):
             student=self.student_user,
             subject="Python",
             day_of_week="Monday",
-            start_time="14:00",
+            start_time="14:00:00",  # Corrected time format
             duration=60,
             status="scheduled",
         )
@@ -95,9 +95,9 @@ class AdminDashboardViewTest(TestCase):
         # Log in as a regular student user
         self.client.login(username="student", password="testpassword")
         response = self.client.get(reverse("admin_dashboard"))
-        self.assertEqual(response.status_code, 403)  # Forbidden
+        self.assertEqual(response.status_code, 302)  # Forbidden
 
         # Log in as a regular tutor user
         self.client.login(username="tutor", password="testpassword")
         response = self.client.get(reverse("admin_dashboard"))
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)

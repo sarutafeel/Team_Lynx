@@ -11,6 +11,8 @@ from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, FeedbackForm
 from tutorials.helpers import login_prohibited
 from tutorials.forms import TutorSignUpForm
+from django.contrib.auth.decorators import user_passes_test
+
 
 from .models import Request, Tutor, Invoice, Student, LessonSchedule, StudentRequest, TutorRequest, Feedback
 from django.db import models
@@ -126,6 +128,7 @@ def tutor_requests(request):
 
 
 @login_required
+@user_passes_test(lambda user: user.is_superuser)
 def admin_dashboard(request):
     """Admin Dashboard showing requests and lesson scheduling."""
     student_requests = StudentRequest.objects.all().order_by('status', '-created_at')
@@ -141,6 +144,7 @@ def admin_dashboard(request):
 
 
 @login_required
+@user_passes_test(lambda user: user.is_superuser)
 def admin_invoices(request):
     """Admin view for invoices."""
     tutors = Tutor.objects.select_related('user')
@@ -156,6 +160,7 @@ def admin_invoices(request):
 
 
 @login_required
+@user_passes_test(lambda user: user.is_superuser)
 def admin_feedback(request):
     """Admin view for feedback."""
     feedbacks = Feedback.objects.all().order_by('-posted')  # Fetch all feedback, ordered by newest first

@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from tutorials.models import Tutor, Student, Feedback, Invoice, LessonSchedule, StudentRequest
 from datetime import date
 from django.utils.timezone import now
-from django.db.models import Sum
 
 User = get_user_model()
 
