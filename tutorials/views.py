@@ -18,7 +18,7 @@ from django.db.models import Sum
 
 from .forms import LessonScheduleForm, StudentRequestForm, TutorRequestForm
 from django.http import HttpResponseRedirect
-
+from datetime import date, timedelta
 
 @login_required
 def student_dashboard(request):
@@ -166,17 +166,38 @@ def admin_feedback(request):
 @login_required
 def admin_analytics(request):
     """Admin view for analytics."""
+    
+    # Tutor and student data
     tutors = Tutor.objects.select_related('user')
     students = Student.objects.select_related('user')
-    feedbacks = Feedback.objects.all().order_by('-posted')  # Fetch all feedback, ordered by newest first
 
-    # Analytics
+    # Feedback analytics
+    feedbacks = Feedback.objects.all().order_by('-posted')
+
+    # Invoices analytics
+    invoices = Invoice.objects.select_related('student', 'tutor__user').order_by('-created_at')
+    total_revenue = invoices.aggregate(total_revenue=Sum('amount'))['total_revenue'] or 0
+    monthly_revenue = invoices.filter(due_date__month=date.today().month).aggregate(
+        monthly_revenue=Sum('amount'))['monthly_revenue'] or 0
+
+    # Lesson and request analytics
+    lessons = LessonSchedule.objects.all()
+    pending_requests = StudentRequest.objects.filter(status='pending').count()
+
+
+    # Analytics summary
     analytics = {
         "total_tutors": tutors.count(),
         "total_students": students.count(),
-        "hours_taught": tutors.aggregate(total_hours=Sum('hours_taught'))['total_hours'] or 0,
-        "total_feedback": feedbacks.count(),  # Total feedback count
+        "active_tutors": tutors.filter(user__is_active=True).count(),
+        "active_students": students.filter(user__is_active=True).count(),
+        "hours_taught": lessons.aggregate(total_hours=Sum('duration'))['total_hours'] or 0,
+        "total_feedback": feedbacks.count(),
+        "total_revenue": total_revenue,
+        "monthly_revenue": monthly_revenue,
+        "pending_requests": pending_requests,
     }
+
     context = {'analytics': analytics}
     return render(request, 'admin_analytics.html', context)
 
