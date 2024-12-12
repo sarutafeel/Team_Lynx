@@ -2,7 +2,7 @@
 from django.contrib.auth.hashers import check_password
 from django import forms
 from django.test import TestCase
-from tutorials.forms import SignUpForm
+from tutorials.forms import SignUpForm, TutorSignUpForm
 from tutorials.models import User
 
 class SignUpFormTestCase(TestCase):
@@ -77,3 +77,20 @@ class SignUpFormTestCase(TestCase):
         self.assertEqual(user.email, 'janedoe@example.org')
         is_password_correct = check_password('Password123', user.password)
         self.assertTrue(is_password_correct)
+
+    def test_form_creates_tutor_user(self):
+        """Test that the form successfully creates a user with the tutor role."""
+        form = TutorSignUpForm(data=self.form_input)
+        self.assertTrue(form.is_valid(), msg=form.errors)  # Display form errors if invalid
+        user = form.save()
+        self.assertEqual(user.username, '@janedoe')  # Use username from self.form_input
+        self.assertEqual(user.role, 'tutor')  # Ensure the role is set correctly
+        self.assertTrue(user.check_password('Password123'))  # Ensure the password is saved
+
+
+    def test_form_requires_matching_passwords(self):
+        """Test that the form rejects non-matching passwords."""
+        self.form_input['password_confirmation'] = 'WrongPassword'
+        form = SignUpForm(data=self.form_input)  # Use SignUpForm for this test
+        self.assertFalse(form.is_valid(), msg=form.errors)  # Display form errors if invalid
+        self.assertIn('password_confirmation', form.errors)

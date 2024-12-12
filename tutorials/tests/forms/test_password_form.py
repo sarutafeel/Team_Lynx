@@ -70,3 +70,5 @@ class PasswordFormTestCase(TestCase):
         form.full_clean()
         result = form.save()
         self.assertFalse(result)
+
+    

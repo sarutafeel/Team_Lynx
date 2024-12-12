@@ -37,12 +37,12 @@ class LogInFormTestCase(TestCase):
     def test_form_accepts_incorrect_username(self):
         self.form_input['username'] = 'ja'
         form = LogInForm(data=self.form_input)
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
     def test_form_accepts_incorrect_password(self):
         self.form_input['password'] = 'pwd'
         form = LogInForm(data=self.form_input)
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
     def test_can_authenticate_valid_user(self):
         fixture = User.objects.get(username='@johndoe')
