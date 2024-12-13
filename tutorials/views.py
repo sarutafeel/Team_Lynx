@@ -19,7 +19,7 @@ from django.db import models
 from django.db.models import Sum
 
 from .forms import LessonScheduleForm, StudentRequestForm, TutorRequestForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound
 from datetime import date, timedelta
 
 @login_required
@@ -310,28 +310,60 @@ class LoginProhibitedMixin:
 
 
 
+# Custom decorator to enforce admin-only access
+def admin_required(view_func):
+    def wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('log_in')}?next={request.path}")
+        if request.user.role != "admin":
+            return HttpResponseForbidden("You are not authorized to access this page.")
+        return view_func(request, *args, **kwargs)
+    return wrapped_view
+
+
 @login_required
+@admin_required
+def delete_invoice(request, invoice_id):
+    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    invoice.delete()
+    messages.success(request, "Invoice deleted successfully.")
+    return redirect("admin_dashboard")
+
+
+@login_required
+@admin_required
 def edit_lesson(request, pk):
     lesson = get_object_or_404(LessonSchedule, pk=pk)
-    if request.method == 'POST':
+
+    # Restrict non-admin users
+    if request.user.role != "admin":
+        return HttpResponseForbidden("You are not authorized to access this page.")
+
+    if request.method == "POST":
         form = LessonScheduleForm(request.POST, instance=lesson)
         if form.is_valid():
             form.save()
             messages.success(request, "Lesson updated successfully!")
-            return redirect('admin_dashboard')
+            return redirect("admin_dashboard")  # Ensure proper redirection
     else:
         form = LessonScheduleForm(instance=lesson)
-    return render(request, 'edit_lesson.html', {'form': form, 'lesson': lesson})
 
+    return render(request, "edit_lesson.html", {"form": form, "lesson": lesson})
 
 
 @login_required
 def delete_lesson(request, pk):
     lesson = get_object_or_404(LessonSchedule, pk=pk)
-    lesson.delete()
-    messages.success(request, "Lesson deleted successfully!")
-    return redirect('admin_dashboard')
 
+    # Allow deletion by admin only
+    if request.user.role != "admin":
+        return HttpResponseForbidden("You are not authorized to delete this lesson.")
+
+    if request.method == "POST":
+        lesson.delete()
+        return redirect("admin_dashboard")
+
+    return HttpResponseNotFound("Lesson not found.")
 
 class LogInView(LoginProhibitedMixin, View):
     """Display login screen and handle user login."""
@@ -382,12 +414,6 @@ def log_out(request):
 
     logout(request)
     return redirect('home')
-
-
-def delete_invoice(request, invoice_id):
-    invoice = get_object_or_404(Invoice, id=invoice_id)
-    invoice.delete()
-    return redirect('admin_dashboard')
 
 
 
@@ -600,7 +626,6 @@ def submit_tutor_request(request):
     else:
         form = TutorRequestForm()
     return render(request, 'submit_tutor_request.html', {'tutor_request_form': form})
-
 
 
 

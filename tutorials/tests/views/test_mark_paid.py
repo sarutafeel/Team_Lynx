@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 from tutorials.models import Invoice, Student, Tutor
+from datetime import date
 
 User = get_user_model()
 
@@ -26,9 +27,13 @@ class MarkPaidViewTest(TestCase):
             )
         )
 
-        # Create a sample invoice
+        # Create a sample invoice with due_date
         self.invoice = Invoice.objects.create(
-            student=self.student, tutor=self.tutor, amount=100.00, status="Unpaid"
+            student=self.student, 
+            tutor=self.tutor, 
+            amount=100.00, 
+            status="Unpaid", 
+            due_date=date.today()
         )
 
     def test_mark_paid_redirects_if_not_logged_in(self):
