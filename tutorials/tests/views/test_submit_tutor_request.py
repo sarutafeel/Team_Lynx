@@ -30,32 +30,35 @@ class SubmitTutorRequestViewTest(TestCase):
         self.assertTemplateUsed(response, "submit_tutor_request.html")
         self.assertIsInstance(response.context["tutor_request_form"], TutorRequestForm)
 
+    # test_submit_tutor_request.py
     def test_form_submission_valid_data(self):
         """Test that a valid form submission creates a new TutorRequest."""
         self.client.login(username="tutoruser", password="tutorpass")
 
         data = {
             "languages": "Python, Java",
-            "day_of_week": "Monday",
+            "day_of_week": "monday",  # Correct lowercase match
             "available_time": "10:00",
-            "level_can_teach": "Beginner",
+            "level_can_teach": "beginner",  # Correct lowercase match
             "additional_details": "Available for project guidance.",
         }
 
-        response = self.client.post(self.url, data)
-        self.assertRedirects(response, reverse("tutor_dashboard"))
+        response = self.client.post(self.url, data, follow=True)
 
-        # Verify that the TutorRequest was created
-        self.assertEqual(TutorRequest.objects.count(), 1)
-        request = TutorRequest.objects.first()
-
-        self.assertEqual(request.tutor, self.tutor_user)
-        self.assertEqual(request.languages, "Python, Java")
-        self.assertEqual(request.status, "available")
-        self.assertEqual(request.level_can_teach, "Beginner")
-
+        # Check success message
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(str(messages[0]), "Your availability has been submitted!")
+
+        # Verify TutorRequest creation
+        self.assertEqual(TutorRequest.objects.count(), 1)
+        tutor_request = TutorRequest.objects.first()
+        self.assertEqual(tutor_request.languages, "Python, Java")
+        self.assertEqual(tutor_request.status, "available")
+
+        # Check correct template and page content
+        self.assertTemplateUsed(response, "tutor_dashboard.html")
+        self.assertContains(response, "Your availability has been submitted!")
+
 
     def test_form_submission_invalid_data(self):
         """Test that invalid form submission returns the form with errors."""

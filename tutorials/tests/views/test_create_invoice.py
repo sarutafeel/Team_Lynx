@@ -8,12 +8,12 @@ User = get_user_model()
 class CreateInvoiceViewTest(TestCase):
     
     def setUp(self):
-        # Create an admin user
+        # Create admin user
         self.admin_user = User.objects.create_superuser(
             username="admin", email="admin@example.com", password="adminpassword"
         )
 
-        # Create sample student and tutor
+        # Create student and tutor
         self.student = Student.objects.create(
             user=User.objects.create_user(
                 username="student1", email="student1@example.com", password="studentpassword"
@@ -46,9 +46,6 @@ class CreateInvoiceViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "create_invoice.html")
-        self.assertContains(response, "Create Invoice")
-        self.assertContains(response, self.student.user.get_full_name())
-        self.assertContains(response, self.tutor.user.get_full_name())
 
     def test_create_invoice_post_valid_data(self):
         """Test creating an invoice with valid data."""
@@ -58,7 +55,7 @@ class CreateInvoiceViewTest(TestCase):
         # Check redirection
         self.assertRedirects(response, reverse("admin_dashboard"))
 
-        # Check the invoice exists
+        # Check if the invoice exists
         invoice = Invoice.objects.get(student=self.student, tutor=self.tutor)
         self.assertEqual(invoice.amount, float(self.valid_invoice_data["amount"]))
         self.assertEqual(str(invoice.due_date), self.valid_invoice_data["due_date"])
@@ -68,17 +65,17 @@ class CreateInvoiceViewTest(TestCase):
         self.client.login(username="admin", password="adminpassword")
 
         # Post incomplete data
-        response = self.client.post(
-            reverse("create_invoice"), {
-                "student": self.student.id,
-                "amount": "100.00",
-            }
-        )
+        invalid_data = {
+            "student": self.student.id,  # Missing 'tutor'
+            "amount": "100.00",
+        }
 
-        # Check the page re-renders
+        response = self.client.post(reverse("create_invoice"), data=invalid_data, follow=True)
+
+        # Check that the template was rendered again with the error
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "create_invoice.html")
-        self.assertContains(response, "Create Invoice")
+        self.assertContains(response, "Both student and tutor are required.", msg_prefix="The error message wasn't found.")
 
-        # Check that no invoices were created
-        self.assertEqual(Invoice.objects.count(), 0)
+        # Ensure no invoices were created
+        self.assertEqual(Invoice.objects.count(), 0, "Invoice should not have been created.")

@@ -22,6 +22,20 @@ from .forms import LessonScheduleForm, StudentRequestForm, TutorRequestForm
 from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound
 from datetime import date, timedelta
 
+
+# Custom decorator to enforce admin-only access
+def admin_required(view_func):
+    def wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('log_in')}?next={request.path}")
+        if request.user.role != "admin":
+            return HttpResponseForbidden("You are not authorized to access this page.")
+        return view_func(request, *args, **kwargs)
+    return wrapped_view
+
+
+
+
 @login_required
 def student_dashboard(request):
     student = request.user
@@ -207,31 +221,34 @@ def admin_analytics(request):
     return render(request, 'admin_analytics.html', context)
 
 
-
 @login_required
 def create_invoice(request):
+
     if request.method == "POST":
         student_id = request.POST.get("student")
         tutor_id = request.POST.get("tutor")
         amount = request.POST.get("amount")
         due_date = request.POST.get("due_date")
 
-        # Fetch student and tutor objects
-        student = get_object_or_404(Student, id=student_id)
-        tutor = get_object_or_404(Tutor, id=tutor_id)
+        # Validate required fields
+        if not student_id or not tutor_id:
+            messages.error(request, "Both student and tutor are required.")
+            students = Student.objects.all()
+            tutors = Tutor.objects.all()
+            return render(request, "create_invoice.html", {"students": students, "tutors": tutors})
 
         # Create the invoice
         Invoice.objects.create(
-            student=student,  # Reference the Student model instance directly
-            tutor=tutor,
+            student=get_object_or_404(Student, id=student_id),
+            tutor=get_object_or_404(Tutor, id=tutor_id),
             amount=amount,
-            due_date=due_date
+            due_date=due_date,
         )
 
         messages.success(request, "Invoice created successfully!")
-        return redirect('admin_dashboard')
-
-    students = Student.objects.all()  # Ensure all students are fetched
+        return redirect("admin_dashboard")
+    
+    students = Student.objects.all()
     tutors = Tutor.objects.all()
     return render(request, "create_invoice.html", {"students": students, "tutors": tutors})
 
@@ -308,17 +325,6 @@ class LoginProhibitedMixin:
         else:
             return self.redirect_when_logged_in_url
 
-
-
-# Custom decorator to enforce admin-only access
-def admin_required(view_func):
-    def wrapped_view(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(f"{reverse('log_in')}?next={request.path}")
-        if request.user.role != "admin":
-            return HttpResponseForbidden("You are not authorized to access this page.")
-        return view_func(request, *args, **kwargs)
-    return wrapped_view
 
 
 @login_required
@@ -506,7 +512,6 @@ class FeedbackView(FormView):
 
     def form_valid(self, form):
         feedback = form.save()  # Save the feedback to the database
-        print(f"Saved feedback: {feedback.name}, {feedback.email}, {feedback.message}")
         messages.success(self.request, "Thank you for your feedback")
         return super().form_valid(form)
     
@@ -626,7 +631,6 @@ def submit_tutor_request(request):
     return render(request, 'submit_tutor_request.html', {'tutor_request_form': form})
 
 
-
 @login_required
 def cancel_lesson(request, lesson_id):
     lesson = get_object_or_404(LessonSchedule, id=lesson_id)
@@ -644,6 +648,7 @@ def cancel_lesson(request, lesson_id):
     return render(request, 'cancel_lesson.html', {'lesson': lesson})
 
 
+@login_required
 def cancel_student_request(request, request_id):
     student_request = get_object_or_404(StudentRequest, id=request_id, student=request.user)
 
@@ -656,7 +661,7 @@ def cancel_student_request(request, request_id):
     
     return redirect('student_dashboard')
 
-
+@login_required
 def cancel_tutor_request(request, request_id):
     tutor_request = get_object_or_404(TutorRequest, id=request_id, tutor=request.user)
 

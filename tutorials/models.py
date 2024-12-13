@@ -22,6 +22,16 @@ LEVEL_CHOICES = [
     ('advanced', 'Advanced'),
 ]
 
+FREQUENCY_CHOICES = [
+    ("weekly", "Weekly"),
+    ("fortnightly", "Fortnightly"),
+]
+
+STATUS_CHOICES = [
+    ("scheduled", "Scheduled"),
+    ("cancelled", "Cancelled"),
+]
+
 # class Student(models.Model):
 #     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="student_profile")
 #     enrollment_date = models.DateField(auto_now_add=True)

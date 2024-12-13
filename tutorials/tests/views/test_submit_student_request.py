@@ -36,27 +36,30 @@ class SubmitStudentRequestViewTest(TestCase):
 
         data = {
             "language": "Python",
-            "day_of_week": "Monday",
+            "day_of_week": "monday",  # Lowercase for consistency
             "preferred_time": "10:00",
-            "difficulty": "Beginner",
-            "frequency": "Weekly",
+            "difficulty": "beginner",  # Lowercase for match
+            "frequency": "weekly",     # Lowercase for match
             "additional_details": "Looking for a tutor with experience.",
         }
 
-        response = self.client.post(self.url, data)
-        self.assertRedirects(response, reverse("student_dashboard"))
+        response = self.client.post(self.url, data, follow=True)
 
-        # Check if the StudentRequest was created
-        self.assertEqual(StudentRequest.objects.count(), 1)
-        request = StudentRequest.objects.first()
-
-        self.assertEqual(request.student, self.student_user)
-        self.assertEqual(request.language, "Python")
-        self.assertEqual(request.status, "pending")
-        self.assertEqual(request.difficulty, "Beginner")
-
+        # Check success message
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(str(messages[0]), "Your request has been submitted!")
+
+        # Verify the StudentRequest creation
+        self.assertEqual(StudentRequest.objects.count(), 1)
+        student_request = StudentRequest.objects.first()
+        self.assertEqual(student_request.student, self.student_user)
+        self.assertEqual(student_request.language, "Python")
+        self.assertEqual(student_request.status, "pending")
+        self.assertEqual(student_request.difficulty, "beginner")
+
+        # Check correct template and page content
+        self.assertTemplateUsed(response, "student_dashboard.html")
+        self.assertContains(response, "Your request has been submitted!")
 
     def test_form_submission_invalid_data(self):
         """Test that invalid form data returns the same page with errors."""
@@ -64,9 +67,9 @@ class SubmitStudentRequestViewTest(TestCase):
 
         data = {
             "language": "",  # Missing required field
-            "day_of_week": "Monday",
+            "day_of_week": "monday",
             "preferred_time": "10:00",
-            "difficulty": "Beginner",
+            "difficulty": "beginner",
         }
 
         response = self.client.post(self.url, data)

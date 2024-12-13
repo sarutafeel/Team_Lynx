@@ -6,18 +6,18 @@ from tutorials.models import StudentRequest
 
 User = get_user_model()
 
-
 class CancelStudentRequestViewTest(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Create a student user
-        self.student_user = User.objects.create_user(
-            username="studentuser", password="studentpass", role="student"
+        cls.student_user = User.objects.create_user(
+            username="studentuser", email="studentuser@example.com", password="studentpass", role="student"
         )
 
         # Create pending and approved requests
-        self.pending_request = StudentRequest.objects.create(
-            student=self.student_user,
+        cls.pending_request = StudentRequest.objects.create(
+            student=cls.student_user,
             language="Math",
             frequency="weekly",
             day_of_week="Monday",
@@ -26,8 +26,8 @@ class CancelStudentRequestViewTest(TestCase):
             status="pending",
         )
 
-        self.approved_request = StudentRequest.objects.create(
-            student=self.student_user,
+        cls.approved_request = StudentRequest.objects.create(
+            student=cls.student_user,
             language="Science",
             frequency="weekly",
             day_of_week="Wednesday",
@@ -36,11 +36,11 @@ class CancelStudentRequestViewTest(TestCase):
             status="approved",
         )
 
-        self.cancel_url_pending = reverse(
-            "cancel_student_request", args=[self.pending_request.id]
+        cls.cancel_url_pending = reverse(
+            "cancel_student_request", args=[cls.pending_request.id]
         )
-        self.cancel_url_approved = reverse(
-            "cancel_student_request", args=[self.approved_request.id]
+        cls.cancel_url_approved = reverse(
+            "cancel_student_request", args=[cls.approved_request.id]
         )
 
     def test_redirect_if_not_logged_in(self):
@@ -77,7 +77,7 @@ class CancelStudentRequestViewTest(TestCase):
     def test_cancel_request_by_unauthorized_user(self):
         """Test that an unauthorized user cannot cancel a request."""
         other_user = User.objects.create_user(
-            username="otheruser", password="otherpass", role="student"
+            username="otheruser", email="otheruser@example.com", password="otherpass", role="student"
         )
         self.client.login(username="otheruser", password="otherpass")
         response = self.client.post(self.cancel_url_pending)

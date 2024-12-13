@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from tutorials.models import Tutor, LessonSchedule
+from tutorials.models import Tutor, LessonSchedule, Student
 
 User = get_user_model()
 
@@ -13,13 +13,22 @@ class TutorDashboardViewTest(TestCase):
         self.tutor_user = User.objects.create_user(
             username="tutortest", email="tutor@example.com", password="testpassword"
         )
+        self.student_user1 = User.objects.create_user(
+            username="student1", email="student1@example.com", password="testpassword"
+        )
+        self.student_user2 = User.objects.create_user(
+            username="student2", email="student2@example.com", password="testpassword"
+        )
+
         self.tutor = Tutor.objects.create(user=self.tutor_user)
+        self.student1 = Student.objects.create(user=self.student_user1)
+        self.student2 = Student.objects.create(user=self.student_user2)
 
         # Create some lessons for the tutor
         self.lesson1 = LessonSchedule.objects.create(
             tutor=self.tutor_user,
+            student=self.student_user1,
             subject="Math",
-            student_name="Student One",
             start_time=timezone.now(),
             duration=60,
             status="scheduled",
@@ -27,8 +36,8 @@ class TutorDashboardViewTest(TestCase):
 
         self.lesson2 = LessonSchedule.objects.create(
             tutor=self.tutor_user,
+            student=self.student_user2,
             subject="Science",
-            student_name="Student Two",
             start_time=timezone.now() + timezone.timedelta(days=1),
             duration=45,
             status="scheduled",
@@ -52,7 +61,7 @@ class TutorDashboardViewTest(TestCase):
         self.assertIn("lessons", response.context)
         self.assertIn("tutor_name", response.context)
         self.assertEqual(response.context["tutor_name"], self.tutor_user.get_full_name())
-        
+
         # Check lessons in context
         lessons = response.context["lessons"]
         self.assertEqual(len(lessons), 2)

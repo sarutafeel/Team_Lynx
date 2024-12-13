@@ -6,41 +6,41 @@ from tutorials.models import TutorRequest
 
 User = get_user_model()
 
-
 class CancelTutorRequestViewTest(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Create a tutor user
-        self.tutor_user = User.objects.create_user(
-            username="tutoruser", password="tutorpass", role="tutor"
+        cls.tutor_user = User.objects.create_user(
+            username="tutoruser", email="tutoruser@example.com", password="tutorpass", role="tutor"
         )
 
-        # Create available and scheduled requests
-        self.available_request = TutorRequest.objects.create(
-            tutor=self.tutor_user,
+        # Correct fields based on the model definition
+        cls.available_request = TutorRequest.objects.create(
+            tutor=cls.tutor_user,
             languages="Math",
-            day_of_week="Monday",
-            level_can_teach="Beginner",
-            available_time="10:00",
-            additional_details="Can teach algebra",
+            day_of_week="monday",
+            available_time="10:00:00",
+            level_can_teach="beginner",
+            additional_details="Available for tutoring",
             status="available",
         )
 
-        self.scheduled_request = TutorRequest.objects.create(
-            tutor=self.tutor_user,
+        cls.busy_request = TutorRequest.objects.create(
+            tutor=cls.tutor_user,
             languages="Science",
-            day_of_week="Wednesday",
-            level_can_teach="Advanced",
-            available_time="11:00",
-            additional_details="Can teach physics",
-            status="scheduled",
+            day_of_week="wednesday",
+            available_time="11:00:00",
+            level_can_teach="intermediate",
+            additional_details="Currently tutoring physics",
+            status="busy",
         )
 
-        self.cancel_url_available = reverse(
-            "cancel_tutor_request", args=[self.available_request.id]
+        cls.cancel_url_available = reverse(
+            "cancel_tutor_request", args=[cls.available_request.id]
         )
-        self.cancel_url_scheduled = reverse(
-            "cancel_tutor_request", args=[self.scheduled_request.id]
+        cls.cancel_url_busy = reverse(
+            "cancel_tutor_request", args=[cls.busy_request.id]
         )
 
     def test_redirect_if_not_logged_in(self):
@@ -65,11 +65,11 @@ class CancelTutorRequestViewTest(TestCase):
     def test_cancel_non_available_request(self):
         """Test that a non-available request cannot be cancelled."""
         self.client.login(username="tutoruser", password="tutorpass")
-        response = self.client.post(self.cancel_url_scheduled)
+        response = self.client.post(self.cancel_url_busy)
 
-        self.scheduled_request.refresh_from_db()
+        self.busy_request.refresh_from_db()
         self.assertRedirects(response, reverse("tutor_dashboard"))
-        self.assertEqual(self.scheduled_request.status, "scheduled")
+        self.assertEqual(self.busy_request.status, "busy")
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(str(messages[0]), "Only available requests can be cancelled.")
@@ -77,7 +77,7 @@ class CancelTutorRequestViewTest(TestCase):
     def test_cancel_request_by_unauthorized_user(self):
         """Test that an unauthorized user cannot cancel a request."""
         other_user = User.objects.create_user(
-            username="otheruser", password="otherpass", role="tutor"
+            username="otheruser", email="otheruser@example.com", password="otherpass", role="tutor"
         )
         self.client.login(username="otheruser", password="otherpass")
         response = self.client.post(self.cancel_url_available)
