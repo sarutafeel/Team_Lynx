@@ -18,10 +18,10 @@
             <label for="status">Status:</label>
             <select name="status" id="status">
                 <option value="">-- All --</option>
-                <option value="pending" {% if filters.status == "pending" %}selected{% endif %}>Pending</option>
-                <option value="approved" {% if filters.status == "approved" %}selected{% endif %}>Approved</option>
-                <option value="available" {% if filters.status == "available" %}selected{% endif %}>Available</option>
-                <option value="scheduled" {% if filters.status == "scheduled" %}selected{% endif %}>Scheduled</option>
+                <option value="pending" {% if filters.status == "pending" %}selected{% endif %}>Pending (Student)</option>
+                <option value="approved" {% if filters.status == "approved" %}selected{% endif %}>Approved (Student)</option>
+                <option value="available" {% if filters.status == "available" %}selected{% endif %}>Available (Tutor)</option>
+                <option value="scheduled" {% if filters.status == "scheduled" %}selected{% endif %}>Scheduled (Tutort)</option>
             </select>
 
             <button type="submit" class="btn btn-primary mt-2">Apply Filters</button>
@@ -36,10 +36,10 @@
                         <tr>
                             <th>Student Name</th>
                             <th>Language</th>
+                            <th>Preferred Time</th>
+                            <th>Day</th>
                             <th>Frequency</th>
                             <th>Level of Difficulty</th>
-                            <th>Day</th>
-                            <th>Time</th>
                             <th>Details</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -50,10 +50,10 @@
                         <tr>
                             <td>{{ request.student.first_name }} {{ request.student.last_name }}</td>
                             <td>{{ request.language }}</td>
+                            <td>{{ request.preferred_time }}</td>
+                            <td>{{ request.day_of_week}}</td>
                             <td>{{ request.frequency }}</td>
                             <td>{{ request.difficulty}}</td>
-                            <td>{{ request.day_of_week}}</td>
-                            <td>{{ request.preferred_time }}</td>
                             <td>{{ request.additional_details }}</td>
                             <td>
                                 <span class="badge 
@@ -88,9 +88,9 @@
                         <tr>
                             <th>Tutor Name</th>
                             <th>Languages</th>
-                            <th>Level of Difficulty</th>
-                            <th>Day</th>
                             <th>Available Time</th>
+                            <th>Day</th>
+                            <th>Level of Difficulty</th>
                             <th>Details</th>
                             <th>Status</th>
                         </tr>
@@ -100,9 +100,9 @@
                         <tr>
                             <td>{{ request.tutor.first_name }} {{ request.tutor.last_name }}</td>
                             <td>{{ request.languages }}</td>
-                            <td>{{ request.level_can_teach}}</td>
-                            <td>{{ request.day_of_week}}</td>
                             <td>{{ request.available_time }}</td>
+                            <td>{{ request.day_of_week}}</td>
+                            <td>{{ request.level_can_teach}}</td>
                             <td>{{ request.additional_details }}</td>
                             <td>
                                 <span class="badge {% if request.status == 'available' %}bg-success{% else %}bg-danger{% endif %}">

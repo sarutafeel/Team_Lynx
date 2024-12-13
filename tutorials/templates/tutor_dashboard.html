@@ -15,7 +15,9 @@
                         <th>Student Name</th>
                         <th>Subject</th>
                         <th>Start Time</th>
+                        <th>Day</th>
                         <th>Duration (min)</th>
+                        <th>Frequency</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -26,7 +28,9 @@
                         <td>{{ lesson.student.first_name }} {{ lesson.student.last_name }}</td>
                         <td>{{ lesson.subject }}</td>
                         <td>{{ lesson.start_time }}</td>
+                        <td>{{ lesson.day_of_week }}</td>
                         <td>{{ lesson.duration }}</td>
+                        <td>{{ lesson.frequency }}</td>
                         <td>{{ lesson.status }}</td>
                         <td>
                             {% if lesson.status == 'scheduled' %}
