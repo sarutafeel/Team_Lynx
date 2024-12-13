@@ -358,13 +358,11 @@ def delete_lesson(request, pk):
     # Allow deletion by admin only
     if request.user.role != "admin":
         return HttpResponseForbidden("You are not authorized to delete this lesson.")
+    lesson.delete()
+    messages.success(request, "Lesson deleted successfully!")
+    return redirect("admin_dashboard")
 
-    if request.method == "POST":
-        lesson.delete()
-        return redirect("admin_dashboard")
-
-    return HttpResponseNotFound("Lesson not found.")
-
+    
 class LogInView(LoginProhibitedMixin, View):
     """Display login screen and handle user login."""
 
