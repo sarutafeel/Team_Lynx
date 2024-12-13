@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Create Invoice</h2>
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <label for="student">Student:</label>
+    <select name="student" id="student" required>
+        <option value="">Select a student</option>
+        {% for student in students %}
+        <option value="{{ student.id }}">{{ student.user.get_full_name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="tutor">Tutor:</label>
+    <select name="tutor" id="tutor" required>
+        <option value="">Select a tutor</option>
+        {% for tutor in tutors %}
+        <option value="{{ tutor.id }}">{{ tutor.user.get_full_name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="amount">Amount:</label>
+    <input type="number" name="amount" id="amount" required step="0.01">
+
+    <label for="due_date">Due Date:</label>
+    <input type="date" name="due_date" id="due_date" required>
+
+    <button type="submit" class="btn btn-primary">Create Invoice</button>
+</form>
+{% endblock %}
