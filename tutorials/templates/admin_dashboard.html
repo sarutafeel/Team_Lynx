@@ -1,8 +1,33 @@
 {% extends 'base_content.html' %}
 {% block content %}
     <div class="container my-4">
+         <!-- Filter Form -->
+        <form method="get" class="mb-4">
+            <h4>Filter Requests</h4>
+            <!-- Student and Tutor Filters -->
+            <label for="language">Language:</label>
+            <select name="language" id="language">
+                <option value="">-- All --</option>
+                <option value="Python" {% if filters.language == "Python" %}selected{% endif %}>Python</option>
+                <option value="Java" {% if filters.language == "Java" %}selected{% endif %}>Java</option>
+                <option value="C++" {% if filters.language == "C++" %}selected{% endif %}>C++</option>
+                <option value="Scala" {% if filters.language == "Scala" %}selected{% endif %}>Scala</option>
+            </select>
+            </select>
 
-        <!-- Requests Section -->
+            <label for="status">Status:</label>
+            <select name="status" id="status">
+                <option value="">-- All --</option>
+                <option value="pending" {% if filters.status == "pending" %}selected{% endif %}>Pending</option>
+                <option value="approved" {% if filters.status == "approved" %}selected{% endif %}>Approved</option>
+                <option value="available" {% if filters.status == "available" %}selected{% endif %}>Available</option>
+                <option value="scheduled" {% if filters.status == "scheduled" %}selected{% endif %}>Scheduled</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary mt-2">Apply Filters</button>
+        </form>
+
+        <!-- Student Requests Section -->
         <section>
             <h2 class="mb-3"> Student Requests</h2>
             <div class="table-responsive" style="max-height: 185px; overflow-y: auto; border: 1px solid #ddd;">
@@ -53,7 +78,7 @@
                 </table>
             </div>
         </section>
-
+        
         <!-- Tutor Requests Section -->
         <section class="mt-5">
             <h2 class="mb-3">Tutor Requests</h2>

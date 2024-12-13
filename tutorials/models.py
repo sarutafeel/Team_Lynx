@@ -129,7 +129,7 @@ class StudentRequest(models.Model):
     language = models.CharField(max_length=100)
     frequency = models.CharField(max_length=20, choices=[('weekly', 'Weekly'), ('fortnightly', 'Fortnightly')])
     day_of_week = models.CharField(max_length=10, choices=DAY_CHOICES, default='monday')
-    preferred_time = models.TimeField() 
+    preferred_time = models.TimeField(null=True, blank=True)
     additional_details = models.TextField(blank=True, null=True)
     difficulty = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('cancelled', 'Cancelled')], default='pending')
@@ -146,6 +146,7 @@ class TutorRequest(models.Model):
     level_can_teach = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     additional_details = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=[('available', 'Available'), ('busy', 'Busy'),('cancelled', 'Cancelled')], default='available')
+    available_time = models.TimeField(null=True, blank=True)
 
     def __str__(self):
         tutor_name = self.tutor.full_name()

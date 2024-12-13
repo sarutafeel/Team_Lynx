@@ -131,14 +131,31 @@ def tutor_requests(request):
 @user_passes_test(lambda user: user.is_superuser)
 def admin_dashboard(request):
     """Admin Dashboard showing requests and lesson scheduling."""
-    student_requests = StudentRequest.objects.all().order_by('status', '-created_at')
-    tutor_requests = TutorRequest.objects.all()  
-    lessons = LessonSchedule.objects.all().distinct().order_by('tutor', 'student', 'subject', 'start_time', 'day_of_week')  
+    filters = {
+        "language": request.GET.get("language", ""),
+        "status": request.GET.get("status", ""),
+    }
 
+    student_requests = StudentRequest.objects.all()
+    tutor_requests = TutorRequest.objects.all()
+
+    if filters["language"]:
+        student_requests = student_requests.filter(language=filters["language"])
+    if filters["status"] and filters["status"] in ["pending", "approved"]:
+        student_requests = student_requests.filter(status=filters["status"])
+
+    if filters["language"]:
+        tutor_requests = tutor_requests.filter(languages__icontains=filters["language"])
+    if filters["status"] and filters["status"] in ["available", "scheduled"]:
+        tutor_requests = tutor_requests.filter(status=filters["status"])
+
+
+    lessons = LessonSchedule.objects.all()
     context = {
         'student_requests': student_requests,
         'tutor_requests': tutor_requests,
         'lessons': lessons,
+        'filters': filters,
     }
     return render(request, 'admin_dashboard.html', context)
 
