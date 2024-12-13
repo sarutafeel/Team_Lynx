@@ -23,10 +23,14 @@ from django.views.generic import TemplateView
 from tutorials.views import student_dashboard, tutor_dashboard, admin_dashboard, create_invoice, FeedbackView,delete_invoice, submit_student_request,submit_tutor_request, cancel_lesson, cancel_student_request, cancel_tutor_request
 
 
+
 urlpatterns = [
+    path('admin/analytics/', views.admin_analytics, name='admin_analytics'),
     path('admin/create_invoice/', views.create_invoice, name="create_invoice"),
     path('admin/delete-invoice/<int:invoice_id>/', views.delete_invoice, name='delete_invoice'),
-    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Custom admin dashboard
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'), 
+    path('admin/feedback/', views.admin_feedback, name='admin_feedback'),
+    path('admin/invoices/', views.admin_invoices, name='admin_invoices'),
     path('admin/lesson/<int:pk>/edit/', views.edit_lesson, name='edit_lesson'),
     path('admin/lesson/<int:pk>/delete/', views.delete_lesson, name='delete_lesson'),
     path('admin/requests/', views.admin_request_list, name='admin_request_list'),
@@ -45,8 +49,12 @@ urlpatterns = [
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('tutor/dashboard/', views.tutor_dashboard, name='tutor_dashboard'),
     path('submit-feedback/', views.FeedbackView.as_view(), name='submit_feedback'),
-    path('student/request/', submit_student_request, name='submit_student_request'),
-    path('tutor/request/', submit_tutor_request, name='submit_tutor_request'),
+    path("student/dashboard/", views.student_dashboard, name="student_dashboard"),
+    path("student/invoices/", views.student_invoices, name="student_invoices"),
+    path("student/request/", views.submit_student_request, name="submit_student_request"),
+    path("student/requests/", views.student_requests, name="student_requests"),
+    path('tutor/requests/', views.tutor_requests, name='tutor_requests'),
+    path('tutor/request/', views.submit_tutor_request, name='submit_tutor_request'),
     path('lesson/<int:lesson_id>/cancel/', cancel_lesson, name='cancel_lesson'),
     path('student/request/<int:request_id>/cancel/', cancel_student_request, name='cancel_student_request'),
     path('tutor/request/<int:request_id>/cancel/', cancel_tutor_request, name='cancel_tutor_request'),

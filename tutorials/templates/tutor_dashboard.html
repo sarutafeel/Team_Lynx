@@ -1,13 +1,7 @@
 {% extends 'base_content.html' %}
-
 {% block content %}
 <div class="container mt-5">
     <h1>Welcome to Your Dashboard, {{ tutor_name }}!</h1>
-
-    <!-- Submit Availability Button -->
-    <div class="mt-4">
-        <a href="{% url 'submit_tutor_request' %}" class="btn btn-primary">Submit Availability</a>
-    </div>
 
     <!-- Allocated Lessons -->
     <div class="mt-5">
@@ -50,45 +44,6 @@
                 {% empty %}
                 <tr>
                     <td colspan="5" class="text-center">No lessons allocated.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Tutor requests -->
-    <div class="mt-5">
-        <h2>Your Requests</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Languages</th>
-                    <th>Available Time</th>
-                    <th>Additional Details</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for request in tutor_requests %}
-                <tr>
-                    <td>{{ request.languages }}</td>
-                    <td>{{ request.available_time }}</td>
-                    <td>{{ request.additional_details }}</td>
-                    <td>
-                        <span class="badge {% if request.status == 'available' %}bg-success{% else %}bg-danger{% endif %}">{{ request.status }}</span>
-                    </td>
-                    <td>
-                        {% if request.status == 'available' %}
-                            <a href="{% url 'cancel_tutor_request' request.id %}" class="btn btn-danger btn-sm">Cancel</a>
-                        {% else %}
-                            <span class="badge bg-secondary">Cannot Cancel</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center">No tutor requests available.</td>
                 </tr>
                 {% endfor %}
             </tbody>

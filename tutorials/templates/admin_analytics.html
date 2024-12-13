@@ -1,0 +1,68 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="text-center">Analytics</h1>
+
+    <div class="row mt-4">
+        <!-- Tutors and Students Section -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-person-fill"></i> Total Tutors</h5>
+                    <p class="display-4">{{ analytics.total_tutors }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-people-fill"></i> Total Students</h5>
+                    <p class="display-4">{{ analytics.total_students }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Section -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card text-white bg-warning shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-cash-coin"></i> Total Revenue</h5>
+                    <p class="display-4">${{ analytics.total_revenue }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card text-white bg-dark shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-calendar-check-fill"></i> Monthly Revenue</h5>
+                    <p class="display-4">${{ analytics.monthly_revenue }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lessons and Feedback Section -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card text-white bg-info shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-clock-fill"></i> Total Hours Taught</h5>
+                    <p class="display-4">{{ analytics.hours_taught }} hrs</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests Section -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card text-white bg-danger shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-exclamation-triangle-fill"></i> Pending Requests</h5>
+                    <p class="display-4">{{ analytics.pending_requests }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

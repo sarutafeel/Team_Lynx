@@ -6,6 +6,7 @@ from tutorials.forms import LogInForm
 from tutorials.models import User
 from tutorials.tests.helpers import LogInTester, MenuTesterMixin, reverse_with_next
 
+
 class LogInViewTestCase(TestCase, LogInTester, MenuTesterMixin):
     """Tests of the log in view."""
 
