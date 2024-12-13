@@ -210,10 +210,10 @@ class Command(BaseCommand):
     def generate_feedback(self):
        
         feedbacks = []
-        all_users = User.objects.filter(role__in=['student', 'tutor'])
+        student_users = User.objects.filter(role='student')
 
         for _ in range(self.FEEDBACK_COUNT):
-            user = choice(all_users)
+            user = choice(student_users)
             feedbacks.append(
             Feedback(
                 name=user.get_full_name(),  
