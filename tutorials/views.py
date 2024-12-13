@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
@@ -21,6 +21,7 @@ from django.db.models import Sum
 from .forms import LessonScheduleForm, StudentRequestForm, TutorRequestForm
 from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound
 from datetime import date, timedelta
+
 
 
 # Custom decorator to enforce admin-only access
@@ -57,6 +58,8 @@ def student_requests(request):
 @login_required
 def student_invoices(request):
     """View student invoices."""
+    if request.user.role != "student":
+        raise PermissionDenied("Access restricted to students.")
     try:
         student_profile = request.user.student_profile
     except Student.DoesNotExist:
@@ -614,7 +617,6 @@ def pair_request(request, student_request_id, tutor_request_id):
         'student_request': student_request,
         'tutor_requests': tutor_requests,
     }) 
-
 
 
 @login_required
