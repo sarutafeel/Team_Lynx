@@ -1,4 +1,4 @@
-# Team *enter team name here* Small Group project
+# Team *Lynx* Small Group project
 
 ## Team members
 The members of the team are:
@@ -50,4 +50,6 @@ $ python3 manage.py test
 ## Sources
 The packages used by this application are specified in `requirements.txt`
 
-*Declare are other sources here, and remove this line*
+Use of generative AI:
+Use of AI to help create the scroll functionality for tables use in all the dashboard Html where tables are explected to be large so used to help limit that
+Use of AI in some test cases to assist finding errors but also help create tests of a wider coverage 
