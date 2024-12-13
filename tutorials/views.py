@@ -74,57 +74,6 @@ def student_invoices(request):
 
 
 
-
-
-
-# @login_required
-# def student_dashboard(request):
-#     """Display the student's dashboard."""
-#     student = request.user
-
-#     # Query student requests
-#     student_requests = StudentRequest.objects.filter(student=student).order_by('-created_at')
-
-#     # Handle form submission for student requests
-#     if request.method == "POST":
-#         form = StudentRequestForm(request.POST)
-#         if form.is_valid():
-#             student_request = form.save(commit=False)
-#             student_request.student = student
-#             student_request.status = 'pending'
-#             student_request.save()
-#             messages.success(request, "Your request has been submitted successfully!")
-#             return redirect('student_dashboard')
-#     else:
-#         form = StudentRequestForm()
-
-#     # Validate student profile
-#     try:
-#         student_profile = request.user.student_profile  # Access the related Student instance
-#     except Student.DoesNotExist:
-#         messages.error(request, "You are not registered as a student.")
-#         return redirect("home")  # Redirect to a fallback page if not a student
-
-#     # Fetch invoices and lessons
-#     invoices = Invoice.objects.filter(student=student_profile)
-#     lessons = LessonSchedule.objects.filter(student=student).order_by('start_time')
-
-#     # Render the dashboard
-#     context = {
-#         "student_requests": student_requests,
-#         "student_request_form": form,
-#         "invoices": invoices,
-#         "lessons": lessons,
-#     }
-
-#     return render(request, "student_dashboard.html", context)
-
-
-
-
-
-
-
 @login_required
 def tutor_dashboard(request):
     """Tutor Dashboard showing allocated lessons."""

@@ -32,12 +32,6 @@ STATUS_CHOICES = [
     ("cancelled", "Cancelled"),
 ]
 
-# class Student(models.Model):
-#     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="student_profile")
-#     enrollment_date = models.DateField(auto_now_add=True)
-
-#     def __str__(self):
-#         return self.user.username
 
 
 class Student(models.Model):
@@ -169,19 +163,6 @@ class TutorRequest(models.Model):
     def __str__(self):
         tutor_name = self.tutor.full_name()
         return f"Request by {tutor_name} for teaching {self.languages}"
-
-
-#Alternate Request Model
-# class Request(models.Model):
-#     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='requests')
-#     type = models.CharField(max_length=100)
-#     priority = models.CharField(max_length=50)
-#     status = models.CharField(max_length=50)
-#     allocated = models.BooleanField(default=False)
-
-#     def __str__(self):
-#         return f"Request by {self.student.user.full_name()} - {self.type}"
-    
 
 
 
