@@ -319,6 +319,8 @@ def edit_lesson(request, pk):
             form.save()
             messages.success(request, "Lesson updated successfully!")
             return redirect('admin_dashboard')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = LessonScheduleForm(instance=lesson)
     return render(request, 'edit_lesson.html', {'form': form, 'lesson': lesson})
