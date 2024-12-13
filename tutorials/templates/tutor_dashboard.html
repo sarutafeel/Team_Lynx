@@ -18,7 +18,6 @@
                         <th>Duration (min)</th>
                         <th>Status</th>
                         <th>Actions</th>
-                        <th>Feedback</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,13 +33,6 @@
                                 <a href="{% url 'cancel_lesson' lesson.id %}" class="btn btn-danger btn-sm">Cancel</a>
                             {% else %}
                                 <span class="badge bg-secondary">Cancelled</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if lesson.status == 'scheduled' %}
-                                <a href="{% url 'submit_feedback' %}" class="btn btn-primary btn-sm">Give Feedback</a>
-                            {% else %}
-                                <span class="badge bg-secondary">No Feedback</span>
                             {% endif %}
                         </td>
                     </tr>
