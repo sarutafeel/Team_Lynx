@@ -17,7 +17,7 @@ class LogInTester:
         return '_auth_user_id' in self.client.session.keys()
 
 
-class MenuTesterMixin(TestCase):
+class MenuTesterMixin:
     """Class to extend tests with tools to check the presence of menu items."""
 
     menu_urls = [

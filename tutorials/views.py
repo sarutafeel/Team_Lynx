@@ -507,7 +507,6 @@ class FeedbackView(FormView):
 
     def form_valid(self, form):
         feedback = form.save()  # Save the feedback to the database
-        print(f"Saved feedback: {feedback.name}, {feedback.email}, {feedback.message}")
         messages.success(self.request, "Thank you for your feedback")
         return super().form_valid(form)
     
@@ -644,7 +643,7 @@ def cancel_lesson(request, lesson_id):
     
     return render(request, 'cancel_lesson.html', {'lesson': lesson})
 
-
+@login_required
 def cancel_student_request(request, request_id):
     student_request = get_object_or_404(StudentRequest, id=request_id, student=request.user)
 
@@ -657,7 +656,7 @@ def cancel_student_request(request, request_id):
     
     return redirect('student_dashboard')
 
-
+@login_required
 def cancel_tutor_request(request, request_id):
     tutor_request = get_object_or_404(TutorRequest, id=request_id, tutor=request.user)
 

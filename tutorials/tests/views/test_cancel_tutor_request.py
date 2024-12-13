@@ -12,27 +12,27 @@ class CancelTutorRequestViewTest(TestCase):
     def setUp(self):
         # Create a tutor user
         self.tutor_user = User.objects.create_user(
-            username="tutoruser", password="tutorpass", role="tutor"
+            username="tutoruser", email ="tutor@example.com", password="tutorpass", role="tutor"
         )
 
         # Create available and scheduled requests
         self.available_request = TutorRequest.objects.create(
             tutor=self.tutor_user,
-            languages="Math",
+            languages="Python",
             day_of_week="Monday",
             level_can_teach="Beginner",
             available_time="10:00",
-            additional_details="Can teach algebra",
+            additional_details="Can teach Python",
             status="available",
         )
 
         self.scheduled_request = TutorRequest.objects.create(
             tutor=self.tutor_user,
-            languages="Science",
+            languages="C++",
             day_of_week="Wednesday",
             level_can_teach="Advanced",
             available_time="11:00",
-            additional_details="Can teach physics",
+            additional_details="Can teach C++",
             status="scheduled",
         )
 

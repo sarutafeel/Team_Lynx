@@ -17,7 +17,7 @@ class TutorDashboardViewTest(TestCase):
 
         # Create some lessons for the tutor
         self.lesson1 = LessonSchedule.objects.create(
-            tutor=self.tutor_user,
+            tutor=self.tutor_user.user,
             subject="Math",
             student_name="Student One",
             start_time=timezone.now(),
@@ -26,7 +26,7 @@ class TutorDashboardViewTest(TestCase):
         )
 
         self.lesson2 = LessonSchedule.objects.create(
-            tutor=self.tutor_user,
+            tutor=self.tutor_user.user,
             subject="Science",
             student_name="Student Two",
             start_time=timezone.now() + timezone.timedelta(days=1),

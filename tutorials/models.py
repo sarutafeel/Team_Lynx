@@ -148,7 +148,8 @@ class TutorRequest(models.Model):
     status = models.CharField(max_length=20, choices=[('available', 'Available'), ('busy', 'Busy'),('cancelled', 'Cancelled')], default='available')
 
     def __str__(self):
-        return f"Request by {self.tutor.full_name} for teaching {self.languages}"
+        tutor_name = self.tutor.full_name()
+        return f"Request by {tutor_name} for teaching {self.languages}"
 
 
 #Alternate Request Model

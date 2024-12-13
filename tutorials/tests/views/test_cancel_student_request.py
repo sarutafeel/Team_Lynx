@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -43,12 +44,14 @@ class CancelStudentRequestViewTest(TestCase):
             "cancel_student_request", args=[self.approved_request.id]
         )
 
+    from django.conf import settings
+
     def test_redirect_if_not_logged_in(self):
         """Test that the page redirects if the user is not logged in."""
+        expected_redirect_url = f"/{settings.LOGIN_URL}/?next={self.cancel_url_pending}"
         response = self.client.get(self.cancel_url_pending)
-        self.assertRedirects(
-            response, f"{reverse('log_in')}?next={self.cancel_url_pending}"
-        )
+        self.assertRedirects(response, expected_redirect_url)
+
 
     def test_cancel_pending_request(self):
         """Test that a pending request is successfully cancelled."""
@@ -75,10 +78,10 @@ class CancelStudentRequestViewTest(TestCase):
         self.assertEqual(str(messages[0]), "Only pending requests can be cancelled.")
 
     def test_cancel_request_by_unauthorized_user(self):
-        """Test that an unauthorized user cannot cancel a request."""
-        other_user = User.objects.create_user(
-            username="otheruser", password="otherpass", role="student"
+            """Test that an unauthorized user cannot cancel a request."""
+            other_user = User.objects.create_user(
+            username="otheruser",email="otheruser@example.com", password="otherpass", role="student"
         )
-        self.client.login(username="otheruser", password="otherpass")
-        response = self.client.post(self.cancel_url_pending)
-        self.assertEqual(response.status_code, 404)
+            self.client.login(username="otheruser", password="otherpass")
+            response = self.client.post(self.cancel_url_pending)
+            self.assertEqual(response.status_code, 404)
