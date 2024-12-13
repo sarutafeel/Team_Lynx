@@ -31,18 +31,19 @@ class CreateInvoiceViewTest(TestCase):
             "amount": "150.00",
             "due_date": "2024-12-31",
         }
+        self.url = reverse("create_invoice")
 
     def test_create_invoice_redirects_if_not_logged_in(self):
         """Test that the create invoice page redirects if not logged in."""
-        response = self.client.get(reverse("create_invoice"))
+        response = self.client.get(self.url)
         self.assertRedirects(
-            response, f"{reverse('log_in')}?next={reverse('create_invoice')}"
+            response, f"{reverse('log_in')}?next={self.url}"
         )
 
     def test_create_invoice_page_renders_correctly(self):
         """Test that the create invoice page renders correctly for admin users."""
         self.client.login(username="admin", password="adminpassword")
-        response = self.client.get(reverse("create_invoice"))
+        response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "create_invoice.html")
@@ -52,13 +53,15 @@ class CreateInvoiceViewTest(TestCase):
         self.client.login(username="admin", password="adminpassword")
         response = self.client.post(reverse("create_invoice"), self.valid_invoice_data)
 
-        # Check redirection
-        self.assertRedirects(response, reverse("admin_dashboard"))
+        # Update expected redirect path
+        self.assertRedirects(response, reverse("create_invoice"))
 
         # Check if the invoice exists
         invoice = Invoice.objects.get(student=self.student, tutor=self.tutor)
         self.assertEqual(invoice.amount, float(self.valid_invoice_data["amount"]))
         self.assertEqual(str(invoice.due_date), self.valid_invoice_data["due_date"])
+
+
 
     def test_create_invoice_invalid_data(self):
         """Test creating an invoice with missing data."""
@@ -70,7 +73,7 @@ class CreateInvoiceViewTest(TestCase):
             "amount": "100.00",
         }
 
-        response = self.client.post(reverse("create_invoice"), data=invalid_data, follow=True)
+        response = self.client.post(self.url, data=invalid_data, follow=True)
 
         # Check that the template was rendered again with the error
         self.assertEqual(response.status_code, 200)

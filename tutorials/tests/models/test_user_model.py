@@ -227,6 +227,7 @@ class UserModelTestCase(TestCase):
         expected_str = f"Request by {self.student_request.student.get_full_name()} for {self.student_request.language}"
         self.assertEqual(str(self.student_request), expected_str)
 
+
     def test_str_tutor_request_method(self):
         expected_str = f"Request by {self.tutor_request.tutor.first_name} {self.tutor_request.tutor.last_name} for teaching {self.tutor_request.languages}"
         self.assertEqual(str(self.tutor_request), expected_str)

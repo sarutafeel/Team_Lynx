@@ -255,7 +255,9 @@ def create_invoice(request):
             messages.error(request, "Both student and tutor are required.")
             students = Student.objects.all()
             tutors = Tutor.objects.all()
-            return render(request, "create_invoice.html", {"students": students, "tutors": tutors})
+            return render(
+                request, "create_invoice.html", {"students": students, "tutors": tutors}
+            )
 
         # Create the invoice
         Invoice.objects.create(
@@ -266,8 +268,7 @@ def create_invoice(request):
         )
 
         messages.success(request, "Invoice created successfully!")
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/create_invoice'))
-
+        return redirect("create_invoice")
 
     students = Student.objects.all()  # Ensure all students are fetched
     tutors = Tutor.objects.all()
