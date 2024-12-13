@@ -30,7 +30,7 @@ class Command(BaseCommand):
         print("Seeding complete!")
 
     def create_user(self, data):
-        # Create the user# Create the user
+        # Create the user
         user = User.objects.create_user(
             username=data['username'],
             email=data['email'],
