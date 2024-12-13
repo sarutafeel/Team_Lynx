@@ -98,6 +98,14 @@ class Request(models.Model):
         return f"{self.type} ({self.student.username})"
     
 class Feedback(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='feedback',
+        null=True,  
+        blank=True, 
+    )
+    
     name = models.CharField(max_length=50)
     email = models.EmailField()
     message = models.TextField(max_length=500)
