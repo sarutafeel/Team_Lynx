@@ -1,0 +1,54 @@
+{% extends 'base_content.html' %}
+
+{% block content %}
+<div class="container my-4">
+
+    <!-- User Dashboard -->
+    <section>
+        <h2 class="mb-3">Welcome to Your Dashboard, {{ user.username }}!</h2>
+
+        <!-- Scheduled Lessons Section -->
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+            <table class="table table-bordered table-hover">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Tutor Name</th>
+                        <th>Subject</th>
+                        <th>Start Time</th>
+                        <th>Day</th>
+                        <th>Duration (min)</th>
+                        <th>Frequency</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lesson in lessons %}
+                    <tr>
+                        <td>{{ lesson.tutor.first_name }} {{ lesson.tutor.last_name }}</td>
+                        <td>{{ lesson.subject }}</td>
+                        <td>{{ lesson.start_time }}</td>
+                        <td>{{ lesson.day_of_week }}</td>
+                        <td>{{ lesson.duration }} mins</td>
+                        <td>{{ lesson.frequency }}</td>
+                        <td>{{ lesson.status }}</td>
+                        <td>
+                            {% if lesson.status == 'scheduled' %}
+                                <a href="{% url 'cancel_lesson' lesson.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                            {% else %}
+                                <span class="badge bg-secondary">Cancelled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No lessons scheduled.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

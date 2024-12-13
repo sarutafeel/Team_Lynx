@@ -83,12 +83,20 @@ class ProfileViewTest(TestCase):
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = User.objects.count()
         self.assertEqual(after_count, before_count)
-        response_url = reverse('dashboard')
+
+        # Correct the expected redirect
+        response_url = reverse('student_dashboard')
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
-        self.assertTemplateUsed(response, 'dashboard.html')
+        
+        # Correct the expected template
+        self.assertTemplateUsed(response, 'student_dashboard.html')
+
+        # Check for success message
         messages_list = list(response.context['messages'])
         self.assertEqual(len(messages_list), 1)
         self.assertEqual(messages_list[0].level, messages.SUCCESS)
+
+        # Ensure profile was updated
         self.user.refresh_from_db()
         self.assertEqual(self.user.username, '@johndoe2')
         self.assertEqual(self.user.first_name, 'John2')

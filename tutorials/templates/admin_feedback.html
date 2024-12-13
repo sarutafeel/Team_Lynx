@@ -1,0 +1,38 @@
+{% extends 'base_content.html' %}
+
+{% block content %}
+<div class="container my-4">
+
+    <!-- Feedback Management Section -->
+    <section>
+        <h2 class="mb-3">Feedback Management</h2>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+            <table class="table table-bordered table-hover">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Message (Preview)</th>
+                        <th>Submitted At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>{{ feedback.name }}</td>
+                        <td>{{ feedback.email }}</td>
+                        <td>{{ feedback.message|truncatewords:10 }}</td>
+                        <td>{{ feedback.posted|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">No feedback available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

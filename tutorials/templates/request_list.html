@@ -1,0 +1,59 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<h2>Requests</h2>
+<section>
+    <h3>Student Requests</h3>
+    <table>
+        <tr>
+            <th>Student</th>
+            <th>Subject</th>
+            <th>Frequency</th>
+            <th>Preferred Time</th>
+            <th>Additional Details</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for request in student_requests %}
+        <tr>
+            <td>{{ request.student.full_name }}</td>
+            <td>{{ request.subject }}</td>
+            <td>{{ request.frequency }}</td>
+            <td>{{ request.preferred_time }}</td>
+            <td>{{ request.additional_details }}</td>
+            <td>{{ request.status }}</td>
+            <td>
+                <a href="{% url 'pair_request' request.id 0 %}">Pair</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7">No student requests available.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section>
+    <h3>Tutor Requests</h3>
+    <table>
+        <tr>
+            <th>Tutor</th>
+            <th>Languages</th>
+            <th>Available Time</th>
+            <th>Additional Details</th>
+        </tr>
+        {% for request in tutor_requests %}
+        <tr>
+            <td>{{ request.tutor.full_name }}</td>
+            <td>{{ request.languages }}</td>
+            <td>{{ request.available_time }}</td>
+            <td>{{ request.additional_details }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No tutor requests available.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+{% endblock %}

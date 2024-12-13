@@ -1,0 +1,50 @@
+<!-- create_invoice.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Invoice</title>
+</head>
+<body>
+    <h1>Create Invoice</h1>
+
+    <!-- Display Error Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="student">Student:</label>
+        <select name="student" id="student" required>
+            <option value="">-- Select Student --</option>
+            {% for student in students %}
+            <option value="{{ student.id }}">{{ student.user.username }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="tutor">Tutor:</label>
+        <select name="tutor" id="tutor" required>
+            <option value="">-- Select Tutor --</option>
+            {% for tutor in tutors %}
+            <option value="{{ tutor.id }}">{{ tutor.user.username }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="amount">Amount:</label>
+        <input type="number" name="amount" id="amount" required><br>
+
+        <label for="due_date">Due Date:</label>
+        <input type="date" name="due_date" id="due_date" required><br>
+
+        <button type="submit">Create Invoice</button>
+    </form>
+</body>
+</html>

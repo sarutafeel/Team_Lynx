@@ -34,5 +34,26 @@
       "password": "pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
       "is_active": true
     }
+  },
+  {
+      "model": "tutorials.tutor",
+      "pk": 1,
+      "fields": {
+      "id": 1,
+      "subject": "Default Subject",
+      "hourly_rate": 30.0,
+      "availability": "Weekdays 10 AM - 4 PM",
+      "hours_taught": 0,
+      "user_id": 2
+    }
+  },
+  {
+    "model": "tutorials.student",
+    "pk": 5,
+    "fields": {
+      "id": 1,
+      "enrollment_date": "2024-12-08",
+      "user_id": 4
+    }
   }
 ]

@@ -7,6 +7,7 @@
 }
 
 
+
 /*
  * Cover page
  */
@@ -112,4 +113,24 @@ h3.profile-title {
 .content a:hover {
   text-decoration: underline;
   color: #0d6efd;
+}
+
+
+.card {
+  border-radius: 10px;
+  text-align: center;
+}
+
+.card h5 {
+  font-size: 1.5rem;
+}
+
+.card .display-4 {
+  font-weight: bold;
+}
+
+h1 {
+  font-family: 'Arial', sans-serif;
+  font-size: 3rem;
+  color: #343a40;
 }

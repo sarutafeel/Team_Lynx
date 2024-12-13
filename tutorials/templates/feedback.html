@@ -1,0 +1,27 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <h1>Submit Feedback</h1>
+
+      <!-- Display success or error messages -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Feedback form -->
+      <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- Render the form fields -->
+
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

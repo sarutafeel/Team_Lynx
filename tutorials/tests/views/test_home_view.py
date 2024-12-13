@@ -23,6 +23,10 @@ class HomeViewTestCase(TestCase):
     def test_get_home_redirects_when_logged_in(self):
         self.client.login(username=self.user.username, password="Password123")
         response = self.client.get(self.url, follow=True)
-        redirect_url = reverse('dashboard')
+        
+        redirect_url = reverse('student_dashboard')  # Adjust the expected redirect
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
-        self.assertTemplateUsed(response, 'dashboard.html')
+        
+        # Update the expected template name
+        self.assertTemplateUsed(response, 'student_dashboard.html')
+

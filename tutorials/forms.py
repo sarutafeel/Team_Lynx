@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User
+from .models import User, Feedback, LessonSchedule, StudentRequest, TutorRequest
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -10,15 +10,24 @@ class LogInForm(forms.Form):
     username = forms.CharField(label="Username")
     password = forms.CharField(label="Password", widget=forms.PasswordInput())
 
-    def get_user(self):
-        """Returns authenticated user if possible."""
+    def clean(self):
+        """Validate the credentials and add error messages if invalid."""
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        password = cleaned_data.get('password')
 
-        user = None
-        if self.is_valid():
-            username = self.cleaned_data.get('username')
-            password = self.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-        return user
+        # Check if the credentials are valid
+        user = authenticate(username=username, password=password)
+        if not user:
+            raise forms.ValidationError("Invalid username or password.")
+        self.user = user  # Save the authenticated user for later retrieval
+        return cleaned_data
+
+    def get_user(self):
+        """Returns the authenticated user if valid."""
+        if hasattr(self, 'user'):
+            return self.user
+        return None
 
 
 class UserForm(forms.ModelForm):
@@ -30,6 +39,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
+
 class NewPasswordMixin(forms.Form):
     """Form mixing for new_password and password_confirmation fields."""
 
@@ -39,14 +49,13 @@ class NewPasswordMixin(forms.Form):
         validators=[RegexValidator(
             regex=r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$',
             message='Password must contain an uppercase character, a lowercase '
-                    'character and a number'
+                    'character, and a number'
             )]
     )
     password_confirmation = forms.CharField(label='Password confirmation', widget=forms.PasswordInput())
 
     def clean(self):
-        """Form mixing for new_password and password_confirmation fields."""
-
+        """Ensure the passwords match."""
         super().clean()
         new_password = self.cleaned_data.get('new_password')
         password_confirmation = self.cleaned_data.get('password_confirmation')
@@ -66,8 +75,7 @@ class PasswordForm(NewPasswordMixin):
         self.user = user
 
     def clean(self):
-        """Clean the data and generate messages for any errors."""
-
+        """Validate current password and ensure new password confirmation matches."""
         super().clean()
         password = self.cleaned_data.get('password')
         if self.user is not None:
@@ -79,7 +87,6 @@ class PasswordForm(NewPasswordMixin):
 
     def save(self):
         """Save the user's new password."""
-
         new_password = self.cleaned_data['new_password']
         if self.user is not None:
             self.user.set_password(new_password)
@@ -92,11 +99,30 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 
     class Meta:
         """Form options."""
-
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
     def save(self):
+        """Create a new user."""
+        super().save(commit=False)
+        user = User.objects.create_user(
+            self.cleaned_data.get('username'),
+            first_name=self.cleaned_data.get('first_name'),
+            last_name=self.cleaned_data.get('last_name'),
+            email=self.cleaned_data.get('email'),
+            password=self.cleaned_data.get('new_password'),
+        )
+        return user
+    
+class TutorSignUpForm(NewPasswordMixin, forms.ModelForm):
+
+     class Meta:
+        """Form options."""
+
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email']
+     
+     def save(self):
         """Create a new user."""
 
         super().save(commit=False)
@@ -107,4 +133,55 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             email=self.cleaned_data.get('email'),
             password=self.cleaned_data.get('new_password'),
         )
+
+        user.role = 'tutor'
+        user.save()
+
         return user
+     
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        """Form options"""
+
+        model = Feedback
+        fields = ['name','email','message']
+
+class LessonScheduleForm(forms.ModelForm):
+    class Meta:
+        model = LessonSchedule
+        fields = ['tutor', 'student', 'subject', 'day_of_week', 'start_time', 'duration', 'frequency', 'status']
+        widgets = {
+            'start_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Disable tutor and student fields
+        self.fields['tutor'].disabled = True
+        self.fields['student'].disabled = True
+
+class StudentRequestForm(forms.ModelForm):
+    class Meta:
+        model = StudentRequest
+        fields = [
+            'language',      
+            'frequency',
+            'day_of_week',
+            'preferred_time',
+            'additional_details',
+            'difficulty',     
+        ]
+        widgets = {
+            'preferred_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+        }
+
+class TutorRequestForm(forms.ModelForm):
+    class Meta:
+        model = TutorRequest
+        fields = [
+            'day_of_week', 'available_time', 'languages', 'level_can_teach', 'additional_details'
+        ]
+        widgets = {
+            'available_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+        }
+    
