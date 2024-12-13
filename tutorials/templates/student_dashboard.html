@@ -1,63 +1,58 @@
 {% extends 'base_content.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <h1>Welcome to Your Dashboard, {{ user.username }}!</h1>
-            <!-- Display Scheduled Lessons -->
-            <div class="mt-5">
-                <h3>Your Scheduled Lessons</h3>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Subject</th>
-                            <th>Day</th>
-                            <th>Start Time</th>
-                            <th>Duration</th>
-                            <th>Tutor</th>
-                            <th>Actions</th>
-                            <th>Feedback</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for lesson in lessons %}
-                        <tr>
-                            <td>{{ lesson.subject }}</td>
-                            <td>{{ lesson.day_of_week }}</td>
-                            <td>{{ lesson.start_time }}</td>
-                            <td>{{ lesson.duration }} mins</td>
-                            <td>{{ lesson.tutor.first_name }} {{ lesson.tutor.last_name }}</td>
-                            <td>
-                                {% if lesson.status == 'scheduled' %}
-                                    <a href="{% url 'cancel_lesson' lesson.id %}" class="btn btn-danger btn-sm">Cancel</a>
-                                {% else %}
-                                    <span class="badge bg-secondary">Cancelled</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if lesson.status == 'scheduled' %}
-                                <a href="{% url 'submit_feedback' %}" class="btn btn-primary btn-sm">Give Feedback</a>
-                                {% else %}
-                                    <span class="badge bg-secondary">No Feedback</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center">No lessons scheduled.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+<div class="container my-4">
 
-            <!-- Placeholder for Student Progress -->
-            <div class="mt-4">
-                <h3>Your Progress</h3>
-                <p>Placeholder for student progress details.</p>
-            </div>
+    <!-- User Dashboard -->
+    <section>
+        <h2 class="mb-3">Welcome to Your Dashboard, {{ user.username }}!</h2>
+
+        <!-- Scheduled Lessons Section -->
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+            <table class="table table-bordered table-hover">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Subject</th>
+                        <th>Day</th>
+                        <th>Start Time</th>
+                        <th>Duration</th>
+                        <th>Tutor</th>
+                        <th>Actions</th>
+                        <th>Feedback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lesson in lessons %}
+                    <tr>
+                        <td>{{ lesson.subject }}</td>
+                        <td>{{ lesson.day_of_week }}</td>
+                        <td>{{ lesson.start_time }}</td>
+                        <td>{{ lesson.duration }} mins</td>
+                        <td>{{ lesson.tutor.first_name }} {{ lesson.tutor.last_name }}</td>
+                        <td>
+                            {% if lesson.status == 'scheduled' %}
+                                <a href="{% url 'cancel_lesson' lesson.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                            {% else %}
+                                <span class="badge bg-secondary">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if lesson.status == 'scheduled' %}
+                                <a href="{% url 'submit_feedback' %}" class="btn btn-primary btn-sm">Give Feedback</a>
+                            {% else %}
+                                <span class="badge bg-secondary">No Feedback</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No lessons scheduled.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
+    </section>
+
 </div>
 {% endblock %}

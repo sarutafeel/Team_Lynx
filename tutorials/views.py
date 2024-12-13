@@ -229,7 +229,8 @@ def create_invoice(request):
         )
 
         messages.success(request, "Invoice created successfully!")
-        return redirect('admin_dashboard')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/create_invoice'))
+
 
     students = Student.objects.all()  # Ensure all students are fetched
     tutors = Tutor.objects.all()
