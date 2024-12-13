@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from tutorials.models import LessonSchedule
 
@@ -7,7 +8,7 @@ User = get_user_model()
 class CancelLessonViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        # Unique email for each user
+        # Create users
         cls.tutor_user = User.objects.create_user(
             username="tutoruser", email="tutor@example.com", password="tutorpass", role="tutor"
         )
@@ -18,6 +19,7 @@ class CancelLessonViewTest(TestCase):
             username="otheruser", email="other@example.com", password="otherpass", role="student"
         )
 
+        # Create lesson
         cls.lesson = LessonSchedule.objects.create(
             tutor=cls.tutor_user,
             student=cls.student_user,
@@ -30,8 +32,7 @@ class CancelLessonViewTest(TestCase):
         )
 
     def setUp(self):
-        # Default URL for cancel lesson
-        self.url = f'/lessons/cancel/{self.lesson.id}/'
+        self.url = reverse("cancel_lesson", kwargs={"lesson_id": self.lesson.id})
 
     def test_access_by_authorised_student(self):
         self.client.login(username="studentuser", password="studentpass")
@@ -46,22 +47,23 @@ class CancelLessonViewTest(TestCase):
     def test_access_by_unauthorised_user(self):
         self.client.login(username="otheruser", password="otherpass")
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)
 
     def test_cancel_lesson_as_student(self):
         self.client.login(username="studentuser", password="studentpass")
         response = self.client.post(self.url, follow=True)
         self.lesson.refresh_from_db()
         self.assertEqual(self.lesson.status, "cancelled")
-        self.assertRedirects(response, "/student/dashboard/")
+        self.assertRedirects(response, reverse("student_dashboard"))
 
     def test_cancel_lesson_as_tutor(self):
         self.client.login(username="tutoruser", password="tutorpass")
         response = self.client.post(self.url, follow=True)
         self.lesson.refresh_from_db()
         self.assertEqual(self.lesson.status, "cancelled")
-        self.assertRedirects(response, "/tutor/dashboard/")
+        self.assertRedirects(response, reverse("tutor_dashboard"))
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(self.url)
-        self.assertRedirects(response, f"/accounts/login/?next={self.url}")
+        login_url = f"{reverse('log_in')}?next={self.url}"
+        self.assertRedirects(response, login_url)

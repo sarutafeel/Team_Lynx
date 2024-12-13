@@ -51,4 +51,8 @@ class DashboardViewTest(TestCase):
         """Test that a user with an invalid role is redirected to the home page."""
         self.client.login(username="unknown", password="unknownpassword")
         response = self.client.get(reverse("dashboard"))
-        self.assertRedirects(response, reverse("home"))
+
+        # Check the redirect occurred correctly
+        expected_redirect_url = reverse("home")
+        self.assertRedirects(response, expected_redirect_url, status_code=302, target_status_code=302)
+

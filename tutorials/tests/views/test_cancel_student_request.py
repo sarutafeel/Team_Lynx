@@ -7,18 +7,18 @@ from tutorials.models import StudentRequest
 
 User = get_user_model()
 
-
 class CancelStudentRequestViewTest(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Create a student user
-        self.student_user = User.objects.create_user(
-            username="studentuser", password="studentpass", role="student"
+        cls.student_user = User.objects.create_user(
+            username="studentuser", email="studentuser@example.com", password="studentpass", role="student"
         )
 
         # Create pending and approved requests
-        self.pending_request = StudentRequest.objects.create(
-            student=self.student_user,
+        cls.pending_request = StudentRequest.objects.create(
+            student=cls.student_user,
             language="Math",
             frequency="weekly",
             day_of_week="Monday",
@@ -27,8 +27,8 @@ class CancelStudentRequestViewTest(TestCase):
             status="pending",
         )
 
-        self.approved_request = StudentRequest.objects.create(
-            student=self.student_user,
+        cls.approved_request = StudentRequest.objects.create(
+            student=cls.student_user,
             language="Science",
             frequency="weekly",
             day_of_week="Wednesday",
@@ -37,11 +37,11 @@ class CancelStudentRequestViewTest(TestCase):
             status="approved",
         )
 
-        self.cancel_url_pending = reverse(
-            "cancel_student_request", args=[self.pending_request.id]
+        cls.cancel_url_pending = reverse(
+            "cancel_student_request", args=[cls.pending_request.id]
         )
-        self.cancel_url_approved = reverse(
-            "cancel_student_request", args=[self.approved_request.id]
+        cls.cancel_url_approved = reverse(
+            "cancel_student_request", args=[cls.approved_request.id]
         )
 
     from django.conf import settings
